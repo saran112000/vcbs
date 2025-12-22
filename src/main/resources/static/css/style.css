@@ -467,7 +467,7 @@ body {
 }
 
 .page-header h2 {
-    color: #1e3c72;
+    color: #ffffff;
     font-size: 1.8rem;
     margin-bottom: 8px;
     display: flex;
@@ -476,7 +476,7 @@ body {
 }
 
 .page-header p {
-    color: #666;
+    color: #ffcccc;
 }
 
 /* Room Selection */
@@ -1047,4 +1047,15 @@ body {
     .login-form {
         padding: 20px;
     }
+}
+
+.dashboard-initial-text
+{
+    width: 100%;
+    text-align: center;
+    margin: auto;
+    font-weight: 600;
+    font-size: 27px;
+    color: white;
+    text-shadow: 0px 2px 6px white;
 }
