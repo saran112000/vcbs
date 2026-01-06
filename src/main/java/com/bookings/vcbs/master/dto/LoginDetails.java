@@ -23,11 +23,11 @@ public class LoginDetails {
     private String extensionNo;
     private String email;
     private Integer desigId;
-    private Integer groupId;
+    private Integer division_id;
 
     private String designation;
 
-    private String groupCode;
-    private String groupName;
-    private Long groupHeadId;
+    private String division_code;
+    private String division_name;
+    private Long division_head_id;
 }

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
+
+    <link rel="stylesheet" th:href="@{/bootstrap/css/dataTables.bootstrap5.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+    
+</head>
+
+<body>
+
+<div id="dashboardPage" class="page">
+
+    <!-- ================= HEADER ================= -->
+    <div class="dashboard-header">
+        <div class="header-left">
+            <div class="logo-mini">
+                <i class="fas fa-video"></i>
+                <span>VC Booking</span>
+            </div>
+            <h1>Welcome to Booking Page</h1>
+        </div>
+
+        <div class="header-right">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="loggedInUser">User</span>
+            </div>
+
+            <a th:href="@{/login}" style="text-decoration: none;">
+                <button class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <!-- ================= MAIN LAYOUT ================= -->
+    <div class="main-layout">
+
+        <!-- ============ SIDEBAR ============ -->
+        <div class="sidebar">
+            <ol class="menu" style="list-style:none; padding:0;">
+                <li class="menu-item">
+                    <span class="menu-title">
+                        <i class="fas fa-database"></i> Master
+                    </span>
+                    <ol class="submenu">
+                        <li><a th:href="@{/login-list}">Login List</a></li>
+                         <li><a th:href="@{/officer}">Officer</a></li>
+                        <li><a th:href="@{/division/list}">Division</a></li>
+                  <li><a th:href="@{/Rooms}">Rooms</a></li>
+                    </ol>
+                </li>
+
+                <li class="menu-item">
+                    <span class="menu-title">
+                        <i class="fas fa-file-alt"></i> Reports
+                    </span>
+                    <ol class="submenu">
+                        <li><a th:href="@{/Booking-report}">Booking Report</a></li>
+                        <li><a th:href="@{/Cancle-report}">Cancel Report</a></li>
+                    </ol>
+                </li>
+
+                <li class="menu-item">
+                    <span class="menu-title">
+                        <i class="fas fa-calendar-check"></i> Booking
+                    </span>
+                    <ol class="submenu">
+                        <li><a th:href="@{/bookings}">Drona Booking</a></li>
+                        <li><a th:href="@{/Internet-Report}">Internet Report</a></li>
+                    </ol>
+                </li>
+            </ol>
+        </div>
+
+        <!-- ============ CONTENT AREA ============ -->
+        <div class="content">
+
+            <!-- ===== Manage Users Page ===== -->
+            <div id="manageUsersPage" class="content-section">
+
+                <div class="page-header">
+                    <h2><i class="fas fa-users-cog"></i> Manage Users</h2>
+                    <p>Add and manage system users</p>
+                </div>
+
+                <div class="add-user-form glass-effect">
+				    <h3><i class="fas fa-user-plus"></i> Add / Edit User</h3>
+				
+				    <form id="addUserForm" th:action="@{/save-user}" th:object="${newUser}" method="POST">
+				        
+				        <div class="form-grid">
+				            <div class="input-group">
+				                <label>User ID</label>
+				                <input type="text" th:field="*{empNo}" id="newUserId" required>
+				            </div>
+				
+				            <div class="input-group">
+				                <label>Username</label>
+				                <input type="text" th:field="*{userName}" id="newUserName" required>
+				            </div>
+				
+				            <div class="input-group">
+				                <label>Employee Name</label>
+				                <select th:field="*{empName}" required>
+				                    <option value="">-- Select Employee --</option>
+				                    <option value="John Doe">John Doe</option>
+				                </select>
+				            </div>
+				
+				            <div class="input-group">
+				                <label>Internal No</label>
+				                <input type="text" th:field="*{extensionNo}" id="newInternalNo" required>
+				            </div>
+				
+				            <div class="input-group">
+				                <label>Email</label>
+				                <input type="email" th:field="*{email}" id="newEmail" required>
+				            </div>
+				        </div>
+				
+				        <div class="input-group">
+				            <label>Role</label>
+				            <select th:field="*{roleName}" required>
+				                <option value="">-- Select Role --</option>
+				                <option value="ADMIN">Admin</option>
+				                <option value="USER">User</option>
+				            </select>
+				        </div>
+				
+				        <div class="input-group">
+				            <label>Designation</label>
+				            <select th:field="*{designation}" required>
+				                <option value="">-- Select Designation --</option>
+				                <option value="Manager">Manager</option>
+				            </select>
+				        </div>
+				
+				        <div class="input-group">
+				            <label>Division</label>
+				            <select th:field="*{division_name}" required>
+				                <option value="">-- Select Division --</option>
+				                <option value="IT">IT</option>
+				            </select>
+				        </div>
+				        
+				        <div class="form-buttons">
+				            <button type="submit" class="btn-primary">
+				                <i class="fas fa-save"></i> Save User
+				            </button>
+				            <button type="reset" class="btn-secondary">
+				                <i class="fas fa-eraser"></i> Clear
+				            </button>
+				        </div>
+				    </form>
+				</div>
+
+                <div class="user-list glass-effect">
+                    <h3><i class="fas fa-users"></i> Existing Users</h3>
+
+					    <table class="table table-hover table-striped align-middle report-table" id="user-manager-list">
+					    <thead class="table-dark">
+					        <tr>
+					            <th>User ID</th>
+					            <th>Username</th>
+					            <th>Officer Name</th>
+					            <th>Internal No</th>
+					            <th>Designation</th>
+					            <th>Division</th>
+					            <th>Role</th>
+					            <th class="text-center">Actions</th>
+					        </tr>
+					    </thead>
+					    <tbody id="userTableBody">
+					        <tr th:each="user : ${UserManagerList}">
+					            <td th:text="${user.emp_no}">Emp No</td>
+					            <td th:text="${user.user_name}">Username</td>
+					            <td th:text="${user.emp_name}">Officer Name</td>
+					            <td th:text="${user.extension_no}">Internal No</td>
+					            <td th:text="${user.designation}">Designation</td>
+					            <td th:text="${user.division_name}">Division</td>
+					            <td th:text="${user.role_name}">Role</td>
+					            <td class="text-center">
+					                <div class="btn-group" role="group">
+					                    <button type="button" class="btn btn-outline-primary btn-sm me-2" 
+					                            th:onclick="'editUser(' + ${user.login_id} + ')'" title="Edit">
+					                        <i class="fas fa-edit"></i>
+					                    </button>
+					                    <button type="button" class="btn btn-outline-danger btn-sm" 
+					                            th:onclick="'deleteUser(' + ${user.login_id} + ')'" title="Delete">
+					                        <i class="fas fa-trash"></i>
+					                    </button>
+					                </div>
+					            </td>
+					        </tr>
+					        <tr th:if="${#lists.isEmpty(UserManagerList)}">
+					            <td colspan="8" class="text-center py-4 text-muted">No users found.</td>
+					        </tr>
+					    </tbody>
+					</table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+  <script th:src="@{/js/script.js}" defer></script>
+  
+    <script th:src="@{/bootstrap/js/jquery-3.7.1.js}"></script>
+
+	<script th:src="@{/bootstrap/js/dataTables.js}"></script>
+	
+	<script th:src="@{/bootstrap/js/dataTables.bootstrap5.js}"></script>
+	
+	<script th:src="@{/bootstrap/js/bootstrap.bundle.min.js}"></script>
+	
+	
+
+    
+
+<script>
+
+    $(document).ready(function() {
+    	new DataTable('#user-manager-list');
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <script th:src="@{/js/script.js}"></script>
+    
+    
+
+</head>
+<body>
+
+
+
+ <div id="dashboardPage" class="page" th:fragment="header_nav">
+
+        <div class="dashboard-header">
+            <div class="header-left">
+                <div class="logo-mini">
+                    <i class="fas fa-video"></i>
+                    <span>VC Booking</span>
+                </div>
+                <h1>Welcome to Booking Page</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="loggedInUser">User</span>
+                </div>
+					              <a th:href="@{/login}" style="text-decoration: none;">
+					    <button class="btn-logout" id="logoutBtn">
+					        <i class="fas fa-sign-out-alt"></i> Logout
+					    </button>
+					</a>
+            </div>
+        </div>
+        
+        
+        
+	<div class="sidebar">
+    <ol class="menu" style="list-style: none; padding: 0;">
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-database" style="margin-right: 10px;"></i> Master
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/login-list}">Login List</a></li>
+                <li><a th:href="@{/officer}">Officer</a></li>
+                <li><a th:href="@{/division/list}">Division</a></li>
+                  <li><a th:href="@{/Rooms}">Rooms</a></li>
+            </ol>
+        </li>
+
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Reports
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/Booking-report}">Booking  Report</a></li>
+                <li><a th:href="@{/Cancle-report}">Cancle Report</a></li>
+            </ol>
+        </li>
+        
+         <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Booking
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/bookings}">Drona Booking</a></li>
+                <li><a th:href="@{/Internet-Report}">Internet Report</a></li>
+            </ol>
+        </li>
+    </ol>
+</div>
+
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+    <div class="page-header">
+        <h2><i class="fas fa-door-open"></i> Rooms Management</h2>
+        <p>Add and manage VC rooms</p>
+    </div>
+
+    <div class="glass-effect">
+
+        <!-- Room Form -->
+        <div class="form-group">
+            <label for="roomName">Room Name</label>
+            <input type="text" id="roomName" placeholder="Enter room name (Eg: VC-311)">
+        </div>
+
+        <div class="form-group">
+            <label for="roomType">Room Type</label>
+            <select id="roomType">
+                <option value="">-- Select Room Type --</option>
+                <option value="Internal">Internal</option>
+                <option value="External">External</option>
+                <option value="Conference">Conference</option>
+            </select>
+        </div>
+
+        <button class="btn-primary" onclick="addRoom()">
+            <i class="fas fa-plus"></i> Add Room
+        </button>
+
+        <hr style="margin: 25px 0;">
+
+        <!-- Room List -->
+        <h3>Rooms List</h3>
+
+        <ul id="roomList" class="room-list">
+            <!-- Rooms will be added here -->
+        </ul>
+
+    </div>
+</div>
+
+
+    </div> 
+</body>
+<script>
+
+
+document.querySelectorAll('.menu-title').forEach(title => {
+    title.addEventListener('click', function() {
+        const parent = this.parentElement;
+        
+        // Toggle 'open' class on the clicked menu item
+        parent.classList.toggle('open')	;
+        
+        // Optional: Close other open menus
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item !== parent) {
+                item.classList.remove('open');
+            }
+        });
+    });
+});
+   
+   
+/*    =======rooms */
+
+function addRoom() {
+    const roomName = document.getElementById("roomName").value.trim();
+    const roomType = document.getElementById("roomType").value;
+
+    if (roomName === "" || roomType === "") {
+        alert("Please enter room name and select room type");
+        return;
+    }
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+        <span><strong>${roomName}</strong> - ${roomType}</span>
+        <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+    `;
+
+    document.getElementById("roomList").appendChild(li);
+
+    document.getElementById("roomName").value = "";
+    document.getElementById("roomType").value = "";
+}
+
+
+
+
+</script>
+
+
+</html>
+
+
