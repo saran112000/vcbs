@@ -1,14 +1,15 @@
-package com.bookings.vcbs.config;
+package com.bookings.vcbs.master.repository;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import com.bookings.vcbs.master.modal.Login;
 import com.bookings.vcbs.master.projection.LoginProjection;
 
-
+@Repository
 public interface LoginRepository extends JpaRepository<Login, Long> {
  
 	Login findByUsername(String Username);

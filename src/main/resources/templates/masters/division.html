@@ -32,6 +32,20 @@
     const contextPath = /*[[@{/}]]*/ '';
 </script>
 
+<style type="text/css">
+
+.action-div{
+	    padding: 12px;
+	    width: 65%;
+	    margin: auto;
+}
+
+.action-div .btn-primary {
+    margin: auto;
+}
+
+</style>
+
 </head>
 <body>
 
@@ -114,11 +128,10 @@
 			   <table class="table table-bordered" id="division-list">
 				    <thead class="table-dark">
 				        <tr>
-				            <th>So No</th>
+				            <th>Sl No</th>
 				            <th>Division Code</th>
 				            <th>Division Name</th>
 				            <th>Division Head</th>
-				            <th>Status</th>
 				            <th>Actions</th>
 				        </tr>
 				    </thead>
@@ -131,15 +144,12 @@
 				        <td style="text-align:center;" th:text="${division?.divisionCode}">-</td>
 				        <td th:text="${division?.divisionName}">-</td>
 				        
-				        <td>
-				            <span th:text="${ (division?.divisionHeadId != null ? division.divisionHeadName : '-') 
-							       + (division?.divisionHeadDesignation != null ? ', ' + division.divisionHeadDesignation : '') }"></span>
-				        </td>
-				
-				        <td style="text-align:center;">
-				            <span th:if="${division?.isActive == 1}" class="badge bg-success">Active</span>
-				            <span th:if="${division?.isActive == 0 || division?.isActive == null}" class="badge bg-danger">Inactive</span>
-				        </td>
+				 	    <td>
+						    <span th:text="${division?.divisionHeadName != null ? division.divisionHeadName : '-'}"></span>
+						    
+						    <span th:if="${division?.divisionHeadDesignation != null}" 
+						          th:text="${', ' + division.divisionHeadDesignation}"></span>
+						</td>
 				
 				        <td class="text-center">
 				            <div class="btn-group" role="group">
@@ -160,9 +170,6 @@
 				        </td>
 				    </tr>
 				
-				    <tr th:if="${#lists.isEmpty(divisionList)}">
-				        <td colspan="6" class="text-center py-4 text-muted">No divisions found.</td>
-				    </tr>
 				</tbody>
 				</table>
 				
@@ -203,7 +210,7 @@
 						            class="form-control select2">
 						
 						        <!-- Default option -->
-						        <option value="">-- Select Division Head --</option>
+						        <option value="0">-- Select Division Head --</option>
 						
 						        <!-- Employee list -->
 						        <option th:each="emplist : ${employeeList}"
@@ -384,9 +391,13 @@ function confirmDelete(id) {
 	
 	<script>
 	
-	 $(document).ready(function() {
-	    	new DataTable('#division-list');
+	$(document).ready(function() {
+	    $('#division-list').DataTable({
+	        "language": {
+	            "emptyTable": "No divisions found in the system"
+	        }
 	    });
+	});
 
 
 document.querySelectorAll('.menu-title').forEach(title => {

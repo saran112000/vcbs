@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bookings.vcbs.master.modal.Login;
+import com.bookings.vcbs.master.repository.LoginRepository;
 
 @Service
 public class LoginDetailsServiceImpl implements UserDetailsService{
@@ -53,7 +54,7 @@ public class LoginDetailsServiceImpl implements UserDetailsService{
 		     		e.printStackTrace();	
 	     		}
 	     		
-	     		return new org.springframework.security.core.userdetails.User(login.getUserName(), login.getPassword(), grantedAuthorities);
+	     		return new org.springframework.security.core.userdetails.User(login.getUsername(), login.getPassword(), grantedAuthorities);
         }
         else {
         	   throw new UsernameNotFoundException("username not found");

@@ -1,15 +1,16 @@
 package com.bookings.vcbs.master.dao;
 
 import com.bookings.vcbs.master.dto.EmployeeDTO;
+import com.bookings.vcbs.master.dto.EmployeeDesignationDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
-import com.bookings.vcbs.master.dto.LoginDetails;
+import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.modal.Employee;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
+import com.bookings.vcbs.master.modal.Login;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -46,12 +47,15 @@ public class MasterDaoImpl implements MasterDao {
     public List<EmployeeDivisionDTO> findAll() {
         return entityManager.createQuery(
             """
+        		
             SELECT new com.bookings.vcbs.master.dto.EmployeeDivisionDTO(
                 d.divisionId, d.divisionCode, d.divisionName, d.divisionHeadId, e.empName, ed.designation, d.isActive
             )
             FROM EmployeeDivision d
             LEFT JOIN Employee e ON e.empId = d.divisionHeadId
             LEFT JOIN EmployeeDesignation ed ON ed.desigId = e.desigId
+            WHERE d.isActive = 1
+            
             """,
             EmployeeDivisionDTO.class
         ).getResultList();
@@ -66,16 +70,11 @@ public class MasterDaoImpl implements MasterDao {
     @Override
     public Long save(EmployeeDivision division) {
         
-    	entityManager.merge(division);
+    	EmployeeDivision savedDivision = entityManager.merge(division);
         
-        return division.getDivisionId();
+        return savedDivision.getDivisionId();
     }
 
-    @Override
-    public void update(EmployeeDivision division) {
-        entityManager.merge(division);
-    }
-    
     @Override
     public Long delete(Long divisionId, String userName) {
         EmployeeDivision division = entityManager.find(EmployeeDivision.class, divisionId);
@@ -94,8 +93,18 @@ public class MasterDaoImpl implements MasterDao {
         return entityManager.createQuery(
             """
             SELECT new com.bookings.vcbs.master.dto.EmployeeDTO(
-                e.empId, e.labcode, e.empNo, e.empName, e.desigId, ed.designation, e.extensionNo, e.divisionId,
-                d.divisionCode, d.divisionName, e.email
+                e.empId, 
+                e.labcode, 
+                e.empNo, 
+                e.empName, 
+                e.desigId, 
+                ed.designation, 
+                e.extensionNo, 
+                e.divisionId,
+                d.divisionCode, 
+                d.divisionName, 
+                e.email, 
+                e.isActive
             )
             FROM Employee e
             LEFT JOIN EmployeeDesignation ed ON ed.desigId = e.desigId
@@ -106,31 +115,97 @@ public class MasterDaoImpl implements MasterDao {
         ).getResultList();
     }
     
-    @Override
-    public Employee getEmployeeById(Long empId) {
-        return entityManager.find(Employee.class, empId);
-    }
-
-    @Override
-    public void saveEmployee(Employee employee) {
-        entityManager.persist(employee);
-    }
-
-    @Override
-    public void updateEmployee(Employee employee) {
-        entityManager.merge(employee);
-    }
-
-    @Override
-    public void deleteEmployee(Long empId) {
-        Employee emp = getEmployeeById(empId);
-        if (emp != null) {
-            entityManager.remove(emp);
-        }
-    }
-
 	@Override
 	public EmployeeDivision getParticularDivisionDetails(Long divisionId) {
 		return entityManager.find(EmployeeDivision.class, divisionId);
 	}
+
+	@Override
+	public List<EmployeeDesignationDTO> getEmployeeDesignationList() {
+		return entityManager.createQuery(
+	            """
+	            SELECT new com.bookings.vcbs.master.dto.EmployeeDesignationDTO(
+	                d.desigId, d.desigCode, d.designation
+	            )
+	            FROM EmployeeDesignation d
+	            
+	            """,
+	            EmployeeDesignationDTO.class
+	        ).getResultList();
+	}
+	
+	@Override
+	public List<EmployeeDTO> findAllEmployees() {
+	    return entityManager.createQuery(
+	        """
+	        SELECT new com.example.dto.EmployeeDTO(
+	            e.empId, e.empNo, e.empName, e.desigId, d.designationName, 
+	            e.extensionNo, e.divisionId, div.divisionName, e.email, e.isActive
+	        )
+	        FROM Employee e
+	        LEFT JOIN EmployeeDesignation d ON e.desigId = d.desigId
+	        LEFT JOIN EmployeeDivision div ON e.divisionId = div.divisionId
+	        WHERE e.isActive = 1
+	        """, EmployeeDTO.class
+	    ).getResultList();
+	}
+
+	@Override
+	public Long deleteEmployee(Long empId, String userName) {
+	    Employee emp = entityManager.find(Employee.class, empId);
+	    if (emp != null) {
+	        emp.setIsActive(0);
+	        emp.setModifiedBy(userName);
+	        emp.setModifiedDate(LocalDateTime.now());
+	        entityManager.merge(emp);
+	        return emp.getEmpId();
+	    }
+	    return 0L;
+	}
+
+	@Override
+	public Employee findEmployeeById(Long empId) {
+		return entityManager.find(Employee.class, empId);
+	}
+
+	@Override
+	public Long saveEmployee(Employee employeeEntity) {
+		
+		Employee employee = entityManager.merge(employeeEntity);
+        
+        return employee.getEmpId();
+	}
+	
+	@Override
+	public List<LoginDTO> findAllLogins() {
+	    return entityManager.createQuery(
+	        "SELECT new com.bookings.vcbs.master.dto.LoginDTO(l.loginId, l.username, l.password, l.roleId, l.empId, e.empName, l.isActive) " +
+	        "FROM Login l LEFT JOIN Employee e ON e.empId = l.empId WHERE l.isActive = 1", 
+	        LoginDTO.class).getResultList();
+	}
+
+	@Override
+	public Login findLoginById(Long id) {
+	    return entityManager.find(Login.class, id);
+	}
+
+	@Override
+	public Long saveLogin(Login login) {
+	    Login saved = entityManager.merge(login);
+	    return saved.getLoginId();
+	}
+
+	@Override
+	public Long deleteLogin(Long loginId, String userName) {
+	    Login login = entityManager.find(Login.class, loginId);
+	    if (login != null) {
+	        login.setIsActive(0);
+	        login.setModifiedBy(userName);
+	        login.setModifiedDate(LocalDateTime.now());
+	        entityManager.merge(login);
+	        return login.getLoginId();
+	    }
+	    return 0L;
+	}
+
 }

@@ -1,0 +1,191 @@
+	<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VC Room Bookings</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/bookings.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <script th:src="@{/js/script.js}"></script>
+   
+    
+</head>
+<body>
+
+<!-- <div th:replace="~{bookings/HeaderSidebar :: header_nav}"></div> -->
+
+
+
+
+
+ <div id="dashboardPage" class="page" >
+
+        <div class="dashboard-header">
+            <div class="header-left">
+                <div class="logo-mini">
+                    <i class="fas fa-video"></i>
+                    <span>VC Booking</span>
+                </div>
+                <h1>Welcome to Booking Page</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="loggedInUser">User</span>
+                </div>
+					              <a th:href="@{/login}" style="text-decoration: none;">
+					    <button class="btn-logout" id="logoutBtn">
+					        <i class="fas fa-sign-out-alt"></i> Logout
+					    </button>
+					</a>
+            </div>
+        </div>
+        
+        
+        
+	<div class="sidebar">
+    <ol class="menu" style="list-style: none; padding: 0;">
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-database" style="margin-right: 10px;"></i> Master
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/login-list}">Login List</a></li>
+                <li><a th:href="@{/officer}">Officer</a></li>
+                 <li><a th:href="@{/division/list}">Division</a></li>
+                  <li><a th:href="@{/Rooms}">Rooms</a></li>
+            </ol>
+        </li>
+
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Reports
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/Booking-report}">Booking  Report</a></li>
+                <li><a th:href="@{/Cancle-report}">Cancle Report</a></li>
+            </ol>
+        </li>
+        
+         <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Booking
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/bookings}">Drona Booking</a></li>
+                <li><a th:href="@{/Internet-Report}">Internet Report</a></li>
+            </ol>
+        </li>
+    </ol>
+</div>
+
+
+ <!-- Main Content -->
+            <div class="main-content">
+                <!-- Booking Page -->
+                <div id="bookingPage" class="content-section active">
+                    <div class="page-header">
+                        <h2><i class="fas fa-calendar-alt"></i> Book VC Room</h2>
+                        <p>Select VC room, date, and time slot for booking</p>
+                    </div>
+
+                    <div class="room-selection glass-effect">
+                        <h3><i class="fas fa-door-open"></i> Available VC Rooms</h3>
+                        <div class="room-buttons">
+                            <button class="room-btn active" data-room="311">VC Room 311</button>
+                            <button class="room-btn" data-room="312">VC Room 312</button>
+                            <button class="room-btn" data-room="562">VC Room 562</button>
+                        </div>
+                    </div>
+
+                    <div class="week-navigation glass-effect">
+                        <button class="week-btn" id="prevWeekBtn">
+                            <i class="fas fa-chevron-left"></i> Previous Week
+                        </button>
+                        <div class="current-week" id="currentWeekDisplay">Current Week</div>
+                        <button class="week-btn" id="nextWeekBtn">
+                            Next Week <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="calendar-container glass-effect">
+                        <div class="calendar-header">
+                            <div class="day-header">Monday</div>
+                            <div class="day-header">Tuesday</div>
+                            <div class="day-header">Wednesday</div>
+                            <div class="day-header">Thursday</div>
+                            <div class="day-header">Friday</div>
+                            <div class="day-header">Saturday</div>
+                        </div>
+                        <div class="calendar-slots" id="calendarSlots">
+                            <!-- Time slots will be generated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="booking-form glass-effect">
+                        <h3><i class="fas fa-edit"></i> Booking Details</h3>
+                        <div class="selected-slot-info" id="selectedSlotInfo">
+                            No slot selected
+                        </div>
+                        <form id="bookingForm">
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="guest"><i class="fas fa-user-friends"></i> Guest:</label>
+                                    <input type="text" id="guest" placeholder="Enter guest name/company" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="subject"><i class="fas fa-comment-alt"></i> Subject:</label>
+                                    <input type="text" id="subject" placeholder="Enter meeting subject" required>
+                                </div>
+                            </div>
+                            <div class="form-buttons">
+                                <button type="submit" class="btn-primary" id="bookBtn">
+                                    <i class="fas fa-check-circle"></i> Book Slot
+                                </button>
+                                <button type="button" class="btn-secondary" id="cancelSelectionBtn">
+                                    <i class="fas fa-times-circle"></i> Cancel Selection
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                </div>
+                </div>
+              
+
+                
+         
+    
+           
+    
+    
+    
+    <script>
+
+
+document.querySelectorAll('.menu-title').forEach(title => {
+    title.addEventListener('click', function() {
+        const parent = this.parentElement;
+        
+        // Toggle 'open' class on the clicked menu item
+        parent.classList.toggle('open')	;
+        
+        // Optional: Close other open menus
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item !== parent) {
+                item.classList.remove('open');
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>

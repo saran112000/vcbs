@@ -13,20 +13,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.bookings.vcbs.master.dto.EmployeeDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
-import com.bookings.vcbs.master.dto.LoginDetails;
-import com.bookings.vcbs.master.modal.Employee;
-import com.bookings.vcbs.master.modal.EmployeeDivision;
+import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.service.MasterService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.websocket.server.PathParam;
 
 @Controller
 public class MasterController {
@@ -41,7 +36,7 @@ public class MasterController {
 	/* ----------------------------------------- Division Details -------------------------------------- */
 	
 	@GetMapping("/division/list")
-    public String listDivisions(Model model) {
+    public String divisionList(Model model) {
 		
 		List<EmployeeDivisionDTO> divisionList = masterService.getAllDivisions();
 		model.addAttribute("divisionList", divisionList != null ? divisionList : new ArrayList<>());
@@ -120,80 +115,101 @@ public class MasterController {
 	
 	
 	/* ----------------------------------------- Employee -------------------------------------- */
-    
- // LIST PAGE
-    @RequestMapping("/employee/employee-list")
-    public String getEmployeeList(Model model,
-                                  HttpServletRequest req,
-                                  HttpSession ses) {
-        try {
-            req.setAttribute("employeeList", masterService.getEmployeeList());
-            model.addAttribute("employee", new Employee());
-        } catch (Exception e) {
-            e.printStackTrace();
+   
+    @GetMapping("/employee/list")
+    public String employeeList(Model model) {
+        List<EmployeeDTO> officerList = masterService.getEmployeeList();
+        model.addAttribute("officerList", officerList != null ? officerList : new ArrayList<>());
+        
+        model.addAttribute("designationList", masterService.getEmployeeDesignationList());
+        model.addAttribute("divisionList", masterService.getAllDivisions());
+        
+        model.addAttribute("employee", new EmployeeDTO());
+        return "masters/employee";
+    }
+
+    @PostMapping("/employee/save")
+    public String saveEmployee(@ModelAttribute EmployeeDTO employeeDTO, RedirectAttributes redirect, HttpSession ses, @RequestParam("formAction") String action) throws Exception {
+        String userName = (String)ses.getAttribute("userName");
+        String labcode = (String)ses.getAttribute("labcode");
+        
+        if(employeeDTO == null || action == null) {
+            redirect.addFlashAttribute("errorMessage", "Employee data is missing!");
+            return "redirect:/employee/list";
         }
-        return "masters/employeeList";
+        
+        employeeDTO.setLabcode(labcode);
+        Long status = masterService.saveEmployee(employeeDTO, userName, action);
+        
+        String message = action.equalsIgnoreCase("add") ? "added" : "updated";
+        if(status != null && status > 0) {
+            redirect.addFlashAttribute("successMessage", "Employee " + message + " successfully!");
+        } else {
+            redirect.addFlashAttribute("errorMessage", "Something went wrong!");
+        }
+        return "redirect:/employee/list";
     }
 
-    // CREATE (POST)
-    @PostMapping("/employee/save-employee")
-    public String saveEmployee(@ModelAttribute("employee") Employee employee) {
-        masterService.createEmployee(employee);
-        return "redirect:/employee/employee-list";
-    }
-
-    // UPDATE (PUT style)
-    @PostMapping("/employee/update-employee")
-    public String updateEmployee(@ModelAttribute("employee") Employee employee) {
-        masterService.updateEmployee(employee);
-        return "redirect:/employee/employee-list";
-    }
-
-    // PATCH (ACTIVE / INACTIVE)
-    @PostMapping("/employee/status/{empId}/{status}")
-    public String updateEmployeeStatus(@PathVariable Long empId,
-                                       @PathVariable Integer status) {
-        masterService.updateEmployeeStatus(empId, status);
-        return "redirect:/employee/employee-list";
-    }
-
-    // DELETE
-    @GetMapping("/employee/delete/{empId}")
-    public String deleteEmployee(@PathVariable Long empId) {
-        masterService.deleteEmployee(empId);
-        return "redirect:/employee/employee-list";
+    @PostMapping("/employee/delete/{empId}")
+    public String deleteEmployee(@PathVariable Long empId, RedirectAttributes redirect, HttpSession ses) {
+        String userName = (String)ses.getAttribute("userName");
+        Long status = masterService.deleteEmployee(empId, userName);
+        
+        if(status != null && status > 0) {
+            redirect.addFlashAttribute("successMessage", "Employee deactivated successfully!");
+        } else {
+            redirect.addFlashAttribute("errorMessage", "Error deactivating employee!");
+        }
+        return "redirect:/employee/list";
     }
     
     
     /* ----------------------------------------- User Manager -------------------------------------- */
 	
-	@RequestMapping("/login-list")
-    public String getLoginDetails(Model model, HttpServletRequest req, HttpSession ses) throws Exception
-    {
-		try {
-			req.setAttribute("UserManagerList", masterService.getUserManagerList());
-			model.addAttribute("newUser", new LoginDetails());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+    /* ----------------------------------------- Login Details -------------------------------------- */
+
+    @GetMapping("/login-list")
+    public String loginList(Model model) {
+        List<LoginDTO> loginList = masterService.getAllLogins();
+        model.addAttribute("loginList", loginList != null ? loginList : new ArrayList<>());
+        
+        List<EmployeeDTO> employeeList = masterService.getEmployeeList();
+        model.addAttribute("employeeList", employeeList != null ? employeeList : new ArrayList<>());
+        
+        model.addAttribute("loginForm", new LoginDTO());
         return "masters/loginList";
     }
-	
-	@PostMapping("/save-user")
-    public String saveUser(@ModelAttribute("newUser") LoginDetails userDto, RedirectAttributes redirectAttributes) {
-        
-        try {
-        	System.out.println("userDto****"+userDto);
-            // Logic to save to database:
-            // userService.save(userDto);
-            
-            redirectAttributes.addFlashAttribute("message", "User saved successfully!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error saving user.");
-        }
 
-        // Redirect back to the list page so the DataTable refreshes
+    @PostMapping("/login/save")
+    public String saveLogin(@ModelAttribute LoginDTO loginDTO, RedirectAttributes redirect, HttpSession ses, @RequestParam("formAction") String action) throws Exception {
+        String userName = (String)ses.getAttribute("userName");
+        
+        if(loginDTO == null || action == null) {
+            redirect.addFlashAttribute("errorMessage", "Login data is missing!");
+            return "redirect:/login-list";
+        }
+        
+        Long status = masterService.saveLogin(loginDTO, userName, action);
+        
+        if(status != null && status > 0) {
+            redirect.addFlashAttribute("successMessage", "User " + (action.equalsIgnoreCase("add") ? "added" : "updated") + " successfully!");
+        } else {
+            redirect.addFlashAttribute("errorMessage", "Something went wrong (Username might already exist)!");
+        }
+        
+        return "redirect:/login-list";
+    }
+
+    @PostMapping("/login/delete/{loginId}")
+    public String deleteLogin(@PathVariable Long loginId, RedirectAttributes redirect, HttpSession ses) {
+        String currentUserName = (String)ses.getAttribute("userName");
+        Long status = masterService.deleteLogin(loginId, currentUserName);
+        
+        if(status != null && status > 0) {
+            redirect.addFlashAttribute("successMessage","User deactivated successfully!");
+        } else {
+            redirect.addFlashAttribute("errorMessage", "Action failed!");
+        }
         return "redirect:/login-list";
     }
 	

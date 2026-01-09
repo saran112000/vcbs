@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VC Room Booking System</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="page active">
+        <div class="login-container">
+            <div class="logo-section">
+                <div class="logo-animation">
+                    <i class="fas fa-video"></i>
+                    <div class="pulse-ring"></div>
+                    <div class="pulse-ring delay-1"></div>
+                    <div class="pulse-ring delay-2"></div>
+                </div>
+                <h1 class="logo-text">VC SLOT BOOKING</h1>
+                <p class="logo-subtitle">Virtual Conference Room Reservation System</p>
+            </div>
+
+            <div class="login-form glass-effect">
+                <div class="login-header">
+                    <h2><i class="fas fa-sign-in-alt"></i> User Login</h2>
+                </div>
+
+                <div th:if="${error}" class="alert alert-danger" style="color: #ff4d4d; background: rgba(255, 77, 77, 0.1); padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 5px solid #ff4d4d;">
+                    <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+                </div>
+
+                <div th:if="${message}" class="alert alert-success" style="color: #2ecc71; background: rgba(46, 204, 113, 0.1); padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 5px solid #2ecc71;">
+                    <i class="fas fa-check-circle"></i> <span th:text="${message}"></span>
+                </div>
+
+                <form th:action="@{/login}" method="POST">
+				    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+				    
+				    <div class="input-group">
+				        <label for="username"><i class="fas fa-user"></i> Username</label>
+				        <input type="text" id="username" name="username" autocomplete="username" required>
+				    </div>
+				    <div class="input-group">
+				        <label for="password"><i class="fas fa-lock"></i> Password</label>
+				        <input type="password" id="password" name="password" autocomplete="current-password" required>
+				    </div>
+				    <button type="submit" class="btn-login">
+				        <i class="fas fa-arrow-right"></i> Login
+				    </button>
+				</form>
+
+                <div class="login-footer">
+                    <div class="assistance-section">
+                        <h3><i class="fas fa-headset"></i> Need Assistance?</h3>
+                        <div class="contact-info">
+                            <p><i class="fas fa-phone-alt"></i> Video Conference Assistance:</p>
+                            <p class="contact-number">Cell: 3024 / 5003</p>
+                        </div>
+                        <div class="contact-info">
+                            <p><i class="fas fa-mobile-alt"></i> Application Assistance:</p>
+                            <p class="contact-number">Cell: 3134 / 4035</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+    </div>
+
+</body>
+</html>
