@@ -3,9 +3,12 @@ package com.bookings.vcbs.master.service;
 import java.util.List;
 
 import com.bookings.vcbs.master.dto.EmployeeDTO;
+import com.bookings.vcbs.master.dto.EmployeeDesignationDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
+import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.LoginDetails;
 import com.bookings.vcbs.master.modal.Employee;
+import com.bookings.vcbs.master.modal.EmployeeDesignation;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
 import com.bookings.vcbs.master.projection.LoginProjection;
 
@@ -21,21 +24,21 @@ public interface MasterService {
 
 	public Long saveDivision(EmployeeDivisionDTO division, String userName, String action);
 
-	public void updateDivision(EmployeeDivision division);
-
 	public Long deleteDivision(Long divisionId, String userName);
 
-	public void updateStatus(Long id, Integer isActive);
-	
 	public List<EmployeeDTO> getEmployeeList();
 
-	public Employee getEmployee(Long empId);
+	List<EmployeeDesignationDTO> getEmployeeDesignationList();
 
-	public void createEmployee(Employee employee);
+	List<EmployeeDTO> getAllEmployees();
 
-	public void updateEmployee(Employee employee);
+	Long saveEmployee(EmployeeDTO dto, String userName, String action);
 
-	public void deleteEmployee(Long empId);
-
-	public void updateEmployeeStatus(Long empId, Integer isActive);
+	Long deleteEmployee(Long empId, String userName);
+	
+	public List<LoginDTO> getAllLogins();
+	
+	public Long saveLogin(LoginDTO loginDTO, String userName, String action);
+	
+	public Long deleteLogin(Long loginId, String userName);
 }

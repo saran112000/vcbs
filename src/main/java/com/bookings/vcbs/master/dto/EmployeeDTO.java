@@ -1,43 +1,28 @@
 package com.bookings.vcbs.master.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class EmployeeDTO {
-
     private Long empId;
     private String labcode;
     private String empNo;
     private String empName;
     private Long desigId;
+    private String designationName;
     private String extensionNo;
     private Long divisionId;
-    private String email;
-    private Integer isActive;
-    private String createdBy;
-    private LocalDateTime createdDate;
-    private String modifiedBy;
-    private LocalDateTime modifiedDate;
-
-    private String designationName;
     private String divisionCode;
     private String divisionName;
-    
-    public EmployeeDTO(
-            Long empId,
-            String labcode,
-            String empNo,
-            String empName,
-            Long desigId,
-            String designationName,
-            String extensionNo,
-            Long divisionId,
-            String divisionCode,
-            String divisionName,
-            String email
-    ) {
+    private String email;
+    private Integer isActive; 
+
+    public EmployeeDTO(Long empId, String labcode, String empNo, String empName, 
+                       Long desigId, String designationName, String extensionNo, 
+                       Long divisionId, String divisionCode, String divisionName, 
+                       String email, Integer isActive) {
         this.empId = empId;
         this.labcode = labcode;
         this.empNo = empNo;
@@ -49,8 +34,6 @@ public class EmployeeDTO {
         this.divisionCode = divisionCode;
         this.divisionName = divisionName;
         this.email = email;
+        this.isActive = isActive;
     }
-
 }
-
-

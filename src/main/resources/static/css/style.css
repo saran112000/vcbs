@@ -430,11 +430,7 @@ select {
     }
 }
 
-.action-div{
-	    padding: 12px;
-	    width: 65%;
-	    margin: auto;
-}
+
 
 .action-div .btn-primary {
     margin: auto;
@@ -568,3 +564,4 @@ select {
     color: white;
 }
  
+

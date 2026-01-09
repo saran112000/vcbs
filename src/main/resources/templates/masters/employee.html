@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management</title>
+    
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap/css/dataTables.bootstrap5.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+    
+    <script th:src="@{/js/script.js}" defer></script>
+    <script th:src="@{/bootstrap/js/jquery-3.7.1.js}"></script>
+    <script th:src="@{/bootstrap/js/dataTables.js}"></script>
+    <script th:src="@{/bootstrap/js/dataTables.bootstrap5.js}"></script>
+    <script th:src="@{/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/sweetalert/js/sweetalert2.all.min.js}"></script>
+    
+    <script th:inline="javascript">
+        const contextPath = /*[[@{/}]]*/ '';
+    </script>
+    
+    <style type="text/css">
+
+.action-div{
+	    padding: 12px;
+	    margin: auto;
+}
+
+.action-div .btn-primary {
+    margin: auto;
+}
+
+</style>
+    
+</head>
+<body>
+
+<div id="dashboardPage" class="page">
+    <div class="dashboard-header">
+            <div class="header-left">
+                <div class="logo-mini">
+                    <i class="fas fa-video"></i>
+                    <span>VC Booking</span>
+                </div>
+                <h1>Welcome to Booking Page</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="loggedInUser">User</span>
+                </div>
+					              <a th:href="@{/login}" style="text-decoration: none;">
+					    <button class="btn-logout" id="logoutBtn">
+					        <i class="fas fa-sign-out-alt"></i> Logout
+					    </button>
+					</a>
+            </div>
+        </div>
+        
+        
+        
+	<div class="sidebar">
+    <ol class="menu" style="list-style: none; padding: 0;">
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-database" style="margin-right: 10px;"></i> Master
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/login-list}">Login List</a></li>
+                <li><a th:href="@{/employee/listr̥}">Officer</a></li>
+                <li><a th:href="@{/division/list}">Division</a></li>
+                <li><a th:href="@{/Rooms}">Rooms</a></li>
+            </ol>
+        </li>
+
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Reports
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/Booking-report}">Booking  Report</a></li>
+                <li><a th:href="@{/Cancle-report}">Cancle Report</a></li>
+            </ol>
+        </li>
+        
+         <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Booking
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/bookings}">Drona Booking</a></li>
+                <li><a th:href="@{/Internet-Report}">Internet Report</a></li>
+            </ol>
+        </li>
+    </ol>
+</div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h2><i class="fas fa-user-tie"></i> Officer / Employee Master</h2>
+            <p>Manage employee records and assignments</p>
+        </div>
+
+        <div class="glass-effect">
+            <h3>Employee List</h3>
+            <table class="table table-bordered" id="employee-list">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Sl No</th>
+                        <th>Emp No</th>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>Division</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="emp, iterStat : ${officerList}">
+                        <td style="text-align:center;" th:text="${iterStat.count + '.'}">1.</td>
+                        <td style="text-align:center;" th:text="${emp.empNo}">-</td>
+                        <td th:text="${emp.empName}">-</td>
+                        <td th:text="${emp.designationName}">-</td>
+                        <td th:text="${emp.divisionName}">-</td>
+                        <td th:text="${emp.email}">-</td>
+                        <td style="text-align:center;" class="text-center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-primary btn-sm me-2" 
+                                        th:onclick="addEditEmployee([[${emp}]], 'edit')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                        th:onclick="'confirmDelete(' + ${emp.empId} + ')'">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button type="button" id="addBtn" class="btn-primary" onclick="addEditEmployee('', 'add')" style="display:none; margin: 20px auto;">
+                Add New Employee
+            </button>
+
+            <hr style="margin: 25px 0;">
+
+            <div class="action-div">
+                <form id="employeeForm" th:action="@{/employee/save}" th:object="${employee}" method="POST">
+                    <input type="hidden" id="empId" th:field="*{empId}" />
+                    <input type="hidden" id="formAction" name="formAction" value="add" />
+
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label>Employee No</label>
+                            <input type="text" id="empNo" th:field="*{empNo}" placeholder="Enter Employee No">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Employee Name</label>
+                            <input type="text" id="empName" th:field="*{empName}" placeholder="Enter Name">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Designation</label>
+                            <select id="desigId" th:field="*{desigId}" class="form-control">
+                                <option value="0">-- Select Designation --</option>
+                                <option th:each="desig : ${designationList}" th:value="${desig.desigId}" th:text="${desig.designation}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+				<div class="row">
+                   <div class="form-group col-md-4">
+					    <label>Division</label>
+					    <select id="divisionId" th:field="*{divisionId}" class="form-control">
+					        <option value="0">-- Select Division --</option>
+					        <option th:each="divlist : ${divisionList}"
+					                th:value="${divlist.divisionId}"
+					                th:text="${divlist.divisionName ?: '-'}">
+					        </option>
+					    </select>
+					</div>
+                        <div class="form-group col-md-4">
+                            <label>Extension No</label>
+                            <input type="text" id="extensionNo" th:field="*{extensionNo}" placeholder="Ext No">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Email</label>
+                            <input type="email" id="email" th:field="*{email}" placeholder="Email Address">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="button" id="saveBtn" class="btn-primary" onclick="submitEmployeeForm()">Add Employee</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:if="${successMessage}">Swal.fire("Success", "[[${successMessage}]]", "success");</script>
+<script th:if="${errorMessage}">Swal.fire("Error", "[[${errorMessage}]]", "error");</script>
+
+<script th:inline="javascript">
+function addEditEmployee(emp, action) {
+    const fields = {
+        empId: document.getElementById("empId"),
+        empNo: document.getElementById("empNo"),
+        empName: document.getElementById("empName"),
+        desigId: document.getElementById("desigId"),
+        divisionId: document.getElementById("divisionId"),
+        extNo: document.getElementById("extensionNo"),
+        email: document.getElementById("email"),
+        formAction: document.getElementById("formAction"),
+        saveBtn: document.getElementById("saveBtn"),
+        addBtn: document.getElementById("addBtn")
+    };
+
+    fields.formAction.value = action; 
+
+    if (action === 'add') {
+        Object.values(fields).forEach(f => { if(f && f.tagName === 'INPUT' || f.tagName === 'SELECT') f.value = f.tagName === 'SELECT' ? "0" : ""; });
+        fields.empNo.readOnly = false; 
+        fields.saveBtn.innerText = "Add Employee"; 
+        fields.addBtn.style.display = "none";
+    } else {
+        fields.empId.value = emp.empId ?? "";
+        fields.empNo.value = emp.empNo ?? "";
+        fields.empNo.readOnly = true; 
+        fields.empName.value = emp.empName ?? "";
+        fields.desigId.value = emp.desigId ?? "0";
+        fields.divisionId.value = emp.divisionId ?? "0";
+        fields.extNo.value = emp.extensionNo ?? "";
+        fields.email.value = emp.email ?? "";
+        fields.saveBtn.innerText = "Update Employee";
+        fields.addBtn.style.display = "block";
+    }
+}
+
+function submitEmployeeForm() {
+    const form = document.getElementById("employeeForm");
+    const empNo = document.getElementById("empNo").value.trim();
+    const empName = document.getElementById("empName").value.trim();
+    const desigId = document.getElementById("desigId").value;
+    const action = document.getElementById("formAction").value;
+
+    if (!empNo || !empName || desigId === "0") {
+        Swal.fire("Validation Error", "Please fill required fields (No, Name, Designation)", "warning"); 
+        return;
+    }
+
+    Swal.fire({
+        title: "Confirm Save",
+        text: `Are you sure you want to ${action === 'add' ? 'add' : 'update'} this employee?`, 
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Save"
+    }).then((result) => {
+        if (result.isConfirmed) form.submit();
+    });
+}
+
+function confirmDelete(id) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This will deactivate the employee record.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form'); 
+            form.method = 'POST';
+            form.action = contextPath + "employee/delete/" + id;
+            
+            const token = document.querySelector('meta[name="_csrf"]').content; 
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_csrf';
+            csrfInput.value = token;
+            
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit(); 
+        }
+    });
+}
+
+
+$(document).ready(function() {
+    $('#employee-list').DataTable({
+        "language": {
+            "emptyTable": "No divisions found in the system"
+        }
+    });
+});
+
+</script>
+
+</body>
+</html>

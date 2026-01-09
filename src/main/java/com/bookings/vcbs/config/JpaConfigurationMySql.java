@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.bookings.vcbs.config",
+@EnableJpaRepositories(basePackages = "com.bookings.vcbs.master.repository",
         entityManagerFactoryRef = "EntityManagerMySql",
         transactionManagerRef = "transactionManagerMySql" )
 

@@ -1,0 +1,123 @@
+/* --- Sidebar Container --- */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: #ffffff;
+    border-right: 1px solid #e0e6ed;
+    position: fixed;
+    left: 0;
+    top: 70px; /* Adjust based on your header height */
+    overflow-y: auto;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- Menu Structure --- */
+.menu {
+    list-style: none;
+    padding: 15px 0;
+    margin: 0;
+}
+
+.menu-item {
+    margin-bottom: 5px;
+    padding: 0 10px;
+}
+
+/* --- Parent Title (Master/Reports) --- */
+.menu-title {
+    display: flex;
+    align-items: center;
+ 
+    padding: 12px 15px;
+    color: #1e3c72; /* Dark Blue */
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.menu-title:hover {
+    background: rgba(30, 60, 114, 0.05);
+}
+
+/* Icon styling */
+.menu-title i.main-icon {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+}
+
+/* The Arrow (Chevron) */
+/* .menu-title:after {
+    content: '\f107'; FontAwesome Chevron Down
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+ */
+/* Rotate arrow when open */
+.menu-item.open .menu-title:after {
+    transform: rotate(180deg);
+}
+
+/* Change color when open */
+.menu-item.open .menu-title {
+    background: rgba(30, 60, 114, 0.08);
+    color: #2a5298;
+}
+
+/* --- Submenu (Hidden by default) --- */
+.submenu {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 10px 0;
+    display: none; /* Controlled by JS toggle */
+    overflow: hidden;
+}
+
+/* Show when parent has 'open' class */
+.menu-item.open .submenu {
+    display: block;
+}
+
+.submenu li {
+    position: relative;
+}
+
+.submenu li a {
+    display: block;
+    padding: 10px 15px 10px 48px; /* Indent sub-items */
+    color: #5f6368;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.submenu li a:hover {
+    background-color: #f1f3f4;
+    color: #1e3c72;
+}
+
+/* Active state for the specific link */
+.submenu li a.active {
+    background-color: #e8f0fe;
+    color: #1967d2;
+    font-weight: 500;
+}
+
+/* --- Scrollbar Styling --- */
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #ccd0d5;
+    border-radius: 10px;
+}

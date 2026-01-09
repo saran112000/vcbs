@@ -1,13 +1,17 @@
 package com.bookings.vcbs.master.service;
 
-import com.bookings.vcbs.config.LoginRepository;
 import com.bookings.vcbs.master.dao.MasterDao;
 import com.bookings.vcbs.master.dto.EmployeeDTO;
+import com.bookings.vcbs.master.dto.EmployeeDesignationDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
+import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.LoginDetails;
 import com.bookings.vcbs.master.modal.Employee;
+import com.bookings.vcbs.master.modal.EmployeeDesignation;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
+import com.bookings.vcbs.master.modal.Login;
 import com.bookings.vcbs.master.projection.LoginProjection;
+import com.bookings.vcbs.master.repository.LoginRepository;
 import com.bookings.vcbs.utils.DtoEntityMapper;
 
 import jakarta.transaction.Transactional;
@@ -63,7 +67,9 @@ public class MasterServiceImpl  implements MasterService{
 	
 	@Override
     public List<EmployeeDivisionDTO> getAllDivisions() {
-        return masterDao.findAll();
+		List<EmployeeDivisionDTO> list = masterDao.findAll();
+		list.forEach(row -> System.out.println(row));
+        return list;
     }
 
     @Override
@@ -99,13 +105,9 @@ public class MasterServiceImpl  implements MasterService{
         	divisionEntity.setModifiedDate(LocalDateTime.now());
     	}
     	
-        return masterDao.save(divisionEntity);
-    }
-
-    @Override
-    public void updateDivision(EmployeeDivision division) {
-        division.setModifiedDate(LocalDateTime.now());
-        masterDao.update(division);
+    	Long status = masterDao.save(divisionEntity);
+    	System.out.println("status****"+status);
+        return status;
     }
 
     @Override
@@ -115,51 +117,88 @@ public class MasterServiceImpl  implements MasterService{
     }
 
     @Override
-    public void updateStatus(Long id, Integer isActive) {
-        EmployeeDivision division = masterDao.findById(id);
-        if (division != null) {
-            division.setIsActive(isActive);
-            division.setModifiedDate(LocalDateTime.now());
-            masterDao.update(division);
-        }
-    }
-    
-    @Override
     public List<EmployeeDTO> getEmployeeList() {
-        return masterDao.getEmployeeList();
+    	List<EmployeeDTO> list = masterDao.getEmployeeList();
+        return list;
     }
 
     @Override
-    public Employee getEmployee(Long empId) {
-        return masterDao.getEmployeeById(empId);
+    public List<EmployeeDTO> getAllEmployees() {
+        return masterDao.findAllEmployees();
     }
 
     @Override
-    public void createEmployee(Employee employee) {
-        employee.setCreatedDate(LocalDateTime.now());
-        masterDao.saveEmployee(employee);
-    }
-
-    @Override
-    public void updateEmployee(Employee employee) {
-        employee.setModifiedDate(LocalDateTime.now());
-        masterDao.updateEmployee(employee);
-    }
-
-    @Override
-    public void deleteEmployee(Long empId) {
-        masterDao.deleteEmployee(empId);
-    }
-
-    @Override
-    public void updateEmployeeStatus(Long empId, Integer isActive) {
-        Employee emp = masterDao.getEmployeeById(empId);
-        if (emp != null) {
-            emp.setIsActive(isActive);
-            emp.setModifiedDate(LocalDateTime.now());
-            masterDao.updateEmployee(emp);
+    @Transactional
+    public Long saveEmployee(EmployeeDTO dto, String userName, String action) {
+        Employee employeeEntity;
+        
+        if(action.equalsIgnoreCase("add")) {
+            employeeEntity = new Employee();
+            employeeEntity.setIsActive(1);
+            employeeEntity.setCreatedBy(userName);
+            employeeEntity.setCreatedDate(LocalDateTime.now());
+        } else {
+            employeeEntity = masterDao.findEmployeeById(dto.getEmpId());
+            employeeEntity.setModifiedBy(userName);
+            employeeEntity.setModifiedDate(LocalDateTime.now());
         }
+        
+        employeeEntity.setEmpNo(dto.getEmpNo());
+        employeeEntity.setEmpName(dto.getEmpName());
+        employeeEntity.setDesigId(dto.getDesigId());
+        employeeEntity.setDivisionId(dto.getDivisionId());
+        employeeEntity.setExtensionNo(dto.getExtensionNo());
+        employeeEntity.setEmail(dto.getEmail());
+        employeeEntity.setLabcode(dto.getLabcode());
+
+        return masterDao.saveEmployee(employeeEntity);
     }
+
+    @Override
+    @Transactional
+    public Long deleteEmployee(Long empId, String userName) {
+        return masterDao.deleteEmployee(empId, userName);
+    }
+
+	@Override
+	public List<EmployeeDesignationDTO> getEmployeeDesignationList() {
+		List<EmployeeDesignationDTO> list = masterDao.getEmployeeDesignationList();
+        return list;
+	}
     
+	@Override
+	public List<LoginDTO> getAllLogins() {
+	    return masterDao.findAllLogins();
+	}
+
+	@Override
+	@Transactional
+	public Long saveLogin(LoginDTO loginDTO, String userName, String action) {
+	    Login loginEntity;
+	    
+	    if(action.equalsIgnoreCase("add")) {
+	        loginEntity = new Login();
+	        loginEntity.setUsername(loginDTO.getUserName());
+	        loginEntity.setCreatedBy(userName);
+	        loginEntity.setCreatedDate(LocalDateTime.now());
+	    } else {
+	        loginEntity = masterDao.findLoginById(loginDTO.getLoginId());
+	        loginEntity.setModifiedBy(userName);
+	        loginEntity.setModifiedDate(LocalDateTime.now());
+	    }
+	    
+	    loginEntity.setEmpId(loginDTO.getEmpId());
+	    loginEntity.setPassword(loginDTO.getPassword()); // In production, use BCrypt
+	    loginEntity.setRoleId(loginDTO.getRoleId());
+	    loginEntity.setIsActive(1);
+	    
+	    return masterDao.saveLogin(loginEntity);
+	}
+
+	@Override
+	@Transactional
+	public Long deleteLogin(Long loginId, String userName) {
+	    return masterDao.deleteLogin(loginId, userName);
+	}
     
 }

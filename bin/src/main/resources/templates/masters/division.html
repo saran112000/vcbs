@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap/css/dataTables.bootstrap5.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+    
+    <script th:src="@{/js/script.js}" defer></script>
+  
+    <script th:src="@{/bootstrap/js/jquery-3.7.1.js}"></script>
+
+	<script th:src="@{/bootstrap/js/dataTables.js}"></script>
+	
+	<script th:src="@{/bootstrap/js/dataTables.bootstrap5.js}"></script>
+	
+	<script th:src="@{/bootstrap/js/bootstrap.bundle.min.js}"></script>
+	
+	<script th:src="@{/sweetalert/js/sweetalert2.all.min.js}"></script>
+    
+    <script th:inline="javascript">
+    /* Defines a global variable for the context path */
+    const contextPath = /*[[@{/}]]*/ '';
+</script>
+
+</head>
+<body>
+
+
+
+ <div id="dashboardPage" class="page">
+
+        <div class="dashboard-header">
+            <div class="header-left">
+                <div class="logo-mini">
+                    <i class="fas fa-video"></i>
+                    <span>VC Booking</span>
+                </div>
+                <h1>Welcome to Booking Page</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="loggedInUser">User</span>
+                </div>
+					              <a th:href="@{/login}" style="text-decoration: none;">
+					    <button class="btn-logout" id="logoutBtn">
+					        <i class="fas fa-sign-out-alt"></i> Logout
+					    </button>
+					</a>
+            </div>
+        </div>
+        
+        
+        
+	<div class="sidebar">
+    <ol class="menu" style="list-style: none; padding: 0;">
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-database" style="margin-right: 10px;"></i> Master
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/login-list}">Login List</a></li>
+                <li><a th:href="@{/officer}">Officer</a></li>
+                
+                 <li><a th:href="@{/division/list}">Division</a></li>
+                  <li><a th:href="@{/Rooms}">Rooms</a></li>
+            </ol>
+        </li>
+
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Reports
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/Booking-report}">Booking  Report</a></li>
+                <li><a th:href="@{/Cancle-report}">Cancle Report</a></li>
+            </ol>
+        </li>
+        
+         <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Booking
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/bookings}">Drona Booking</a></li>
+                <li><a th:href="@{/Internet-Report}">Internet Report</a></li>
+            </ol>
+        </li>
+    </ol>
+</div>
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+    <div class="page-header">
+        <h2><i class="fas fa-sitemap"></i> Division Management</h2>
+        <p>Add and manage divisions</p>
+    </div>
+
+    <div class="glass-effect">
+    
+     <!-- Division List -->
+    <h3>Division List</h3>
+    
+			   <table class="table table-bordered" id="division-list">
+				    <thead class="table-dark">
+				        <tr>
+				            <th>So No</th>
+				            <th>Division Code</th>
+				            <th>Division Name</th>
+				            <th>Division Head</th>
+				            <th>Status</th>
+				            <th>Actions</th>
+				        </tr>
+				    </thead>
+				    
+				   <tbody id="divisionTableBody">
+				    <tr th:each="division, iterStat : ${divisionList}">
+				        
+				        <td style="text-align:center;" th:text="${iterStat.count + '.'}">1.</td>
+				
+				        <td style="text-align:center;" th:text="${division?.divisionCode}">-</td>
+				        <td th:text="${division?.divisionName}">-</td>
+				        
+				        <td>
+				            <span th:text="${ (division?.divisionHeadId != null ? division.divisionHeadName : '-') 
+							       + (division?.divisionHeadDesignation != null ? ', ' + division.divisionHeadDesignation : '') }"></span>
+				        </td>
+				
+				        <td style="text-align:center;">
+				            <span th:if="${division?.isActive == 1}" class="badge bg-success">Active</span>
+				            <span th:if="${division?.isActive == 0 || division?.isActive == null}" class="badge bg-danger">Inactive</span>
+				        </td>
+				
+				        <td class="text-center">
+				            <div class="btn-group" role="group">
+				                <button type="button"
+								        class="btn btn-outline-primary btn-sm me-2"
+								        th:inline="javascript"
+								        th:onclick="addEditDivision([[${division}]], 'edit')">
+								    <i class="fas fa-edit"></i>
+								</button>
+
+				                
+				                <button th:if="${division?.divisionId != null}" 
+				                        type="button" class="btn btn-outline-danger btn-sm" 
+				                        th:onclick="'confirmDelete(' + ${division.divisionId} + ')'">
+				                    <i class="fas fa-trash"></i>
+				                </button>
+				            </div>
+				        </td>
+				    </tr>
+				
+				    <tr th:if="${#lists.isEmpty(divisionList)}">
+				        <td colspan="6" class="text-center py-4 text-muted">No divisions found.</td>
+				    </tr>
+				</tbody>
+				</table>
+				
+				 <button type="button" id="addBtn" class="btn-primary" onclick="addEditDivision('', 'add')" style = "display : none;margin:auto;">
+				    Add Division
+				</button>
+			
+			  <hr style="margin: 25px 0;">
+			  
+   			<div class="action-div">
+   				 
+   				 <form id="addDivisionForm" th:action="@{/division/save}" th:object="${division}" method="POST">
+				          
+				  <input type="hidden" id="divisionId" th:field="*{divisionId}" />
+				  <input type="hidden" id="formAction" value="add" name = "formAction"/>
+				          
+				        <div class="form-group">
+				            <label for="divisionCode">Division Code</label>
+				            <input type="text"
+				                   id="divisionCode"
+				                   th:field="*{divisionCode}"
+				                   placeholder="Enter division code">
+				        </div>
+				
+				        <div class="form-group">
+				            <label for="divisionName">Division Name</label>
+				            <input type="text"
+				                   id="divisionName"
+				                   th:field="*{divisionName}"
+				                   placeholder="Enter division name">
+				        </div>
+				
+				       <div class="form-group">
+						    <label for="divisionHeadId">Division Head</label>
+						
+						    <select id="divisionHeadId"
+						            th:field="*{divisionHeadId}"
+						            class="form-control select2">
+						
+						        <!-- Default option -->
+						        <option value="">-- Select Division Head --</option>
+						
+						        <!-- Employee list -->
+						        <option th:each="emplist : ${employeeList}"
+								        th:value="${emplist.empId}"
+								        th:text="|${emplist.empName != null ? emplist.empName : '-'}${emplist.designationName != null ? ', ' + emplist.designationName : ''}|">
+								</option>
+
+						
+						    </select>
+						</div>
+
+				        <button type="button" id="saveBtn" class="btn-primary" onclick="submitDivisionForm()">
+					    	Add Division
+						</button>
+				
+				    </form>
+   			
+   			</div>
+
+
+	</div>
+	    
+	</div>
+
+    </div> 
+    
+
+		<script th:if="${successMessage}">
+		Swal.fire("Success", "[[${successMessage}]]", "success");
+		</script>
+		
+		<script th:if="${errorMessage}">
+		    Swal.fire("Error", "[[${errorMessage}]]", "error");
+		</script>
+		
+		<script th:inline="javascript">
+
+		function addEditDivision(division, action) {
+
+		    const divisionIdEl = document.getElementById("divisionId");
+		    const divisionCodeEl = document.getElementById("divisionCode");
+		    const divisionNameEl = document.getElementById("divisionName");
+		    const divisionHeadIdEl = document.getElementById("divisionHeadId");
+		    const saveBtn = document.getElementById("saveBtn");
+		    const addBtn = document.getElementById("addBtn");
+		    
+		    document.getElementById("formAction").value = action;
+
+		    /* ================= ADD MODE ================= */
+		    if (action === 'add') {
+
+		        if (divisionIdEl) divisionIdEl.value = "";
+		        if (divisionCodeEl) {
+		            divisionCodeEl.value = "";
+		            divisionCodeEl.readOnly = false;
+		        }
+		        if (divisionNameEl) divisionNameEl.value = "";
+		        if (divisionHeadIdEl) divisionHeadIdEl.value = "";
+
+		        if (saveBtn) saveBtn.innerText = "Add Division";
+		        if (addBtn) addBtn.style.display = "none";
+
+		        return; // STOP here
+		    }
+
+		    /* ================= EDIT MODE ================= */
+		    if (!division) {
+		        console.warn("Division object is null for edit");
+		        return;
+		    }
+
+		    if (divisionIdEl) divisionIdEl.value = division.divisionId ?? "";
+		    if (divisionCodeEl) {
+		        divisionCodeEl.value = division.divisionCode ?? "";
+		        divisionCodeEl.readOnly = true;
+		    }
+		    if (divisionNameEl) divisionNameEl.value = division.divisionName ?? "";
+		    if (divisionHeadIdEl) divisionHeadIdEl.value = division.divisionHeadId ?? "";
+
+		    if (saveBtn) saveBtn.innerText = "Update Division";
+		    if (addBtn) addBtn.style.display = "block";
+		}
+
+
+
+		</script>
+		
+		
+		<script>
+	function submitDivisionForm() {
+
+    const form = document.getElementById("addDivisionForm");
+    
+    const divisionCode = document.getElementById("divisionCode").value.trim();
+    const divisionName = document.getElementById("divisionName").value.trim();
+    const divisionHeadId = document.getElementById("divisionHeadId").value.trim();
+    const formAction = document.getElementById("formAction").value.trim();
+
+    if (!divisionCode) {
+        Swal.fire("Validation Error", "Division Code is required", "warning");
+        return;
+    }
+
+    if (!divisionName) {
+        Swal.fire("Validation Error", "Division Name is required", "warning");
+        return;
+    }
+
+    if (!divisionHeadId) {
+        Swal.fire("Validation Error", "Select Division Head", "warning");
+        return;
+    }
+    
+    let text = '';
+    if(formAction && formAction == 'add')
+   	{
+    	text = 'Are you sure you want to add this division?';
+   	}
+    else if(formAction && formAction == 'edit')
+   	{
+    	text = 'Are you sure you want to update this division?';
+   	}
+
+    Swal.fire({
+        title: "Confirm Save",
+        text: text,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Save",
+        cancelButtonText: "Cancel"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+</script>
+
+<script type="text/javascript">
+
+function confirmDelete(id) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You want to delete the division",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // 1. Create a hidden form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            // Ensure you use the contextPath variable we discussed earlier
+            form.action = contextPath + "division/delete/" + id;
+
+            // 2. Get CSRF token from meta tags
+            const token = document.querySelector('meta[name="_csrf"]').content;
+            const header = document.querySelector('meta[name="_csrf_header"]').content;
+
+            // 3. Add CSRF hidden input to the form
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_csrf'; // Spring expects this name
+            csrfInput.value = token;
+            form.appendChild(csrfInput);
+
+            // 4. Submit the form
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+
+</script>
+		
+	
+	
+	<script>
+	
+	 $(document).ready(function() {
+	    	new DataTable('#division-list');
+	    });
+
+
+document.querySelectorAll('.menu-title').forEach(title => {
+    title.addEventListener('click', function() {
+        const parent = this.parentElement;
+        
+        // Toggle 'open' class on the clicked menu item
+        parent.classList.toggle('open')	;
+        
+        // Optional: Close other open menus
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item !== parent) {
+                item.classList.remove('open');
+            }
+        });
+    });
+});
+</script>
+	
+</body>
+
+
+
+</html>
+
+
