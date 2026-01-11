@@ -6,8 +6,10 @@ import com.bookings.vcbs.master.dto.EmployeeDesignationDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.LoginDetails;
+import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleSecurityDTO;
+import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.modal.Employee;
-import com.bookings.vcbs.master.modal.EmployeeDesignation;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
 import com.bookings.vcbs.master.modal.Login;
 import com.bookings.vcbs.master.projection.LoginProjection;
@@ -17,6 +19,9 @@ import com.bookings.vcbs.utils.DtoEntityMapper;
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,6 +35,12 @@ public class MasterServiceImpl  implements MasterService{
     
     @Autowired
     private LoginRepository loginRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
+    @Value("${defaultPassword}")
+    private String defaultPassword;
     
     @Override
     public LoginDetails getUserDetails(String userName, String labcode) {
@@ -84,6 +95,14 @@ public class MasterServiceImpl  implements MasterService{
     	if(divisionDTO == null)
     	{
     		return 0L;
+    	}
+    	
+    	if(action.equalsIgnoreCase("add"))
+    	{
+    		boolean check = masterDao.existsByDivisionCode(divisionDTO.getDivisionCode());
+    		if(check) {
+    			
+    		}
     	}
     	
     	EmployeeDivision divisionEntity = null;
@@ -178,7 +197,8 @@ public class MasterServiceImpl  implements MasterService{
 	    
 	    if(action.equalsIgnoreCase("add")) {
 	        loginEntity = new Login();
-	        loginEntity.setUsername(loginDTO.getUserName());
+	        loginEntity.setPassword(defaultPassword!=null ? passwordEncoder.encode(defaultPassword) : "123"); 
+	        loginEntity.setUsername(loginDTO.getUsername());
 	        loginEntity.setCreatedBy(userName);
 	        loginEntity.setCreatedDate(LocalDateTime.now());
 	    } else {
@@ -188,7 +208,6 @@ public class MasterServiceImpl  implements MasterService{
 	    }
 	    
 	    loginEntity.setEmpId(loginDTO.getEmpId());
-	    loginEntity.setPassword(loginDTO.getPassword()); // In production, use BCrypt
 	    loginEntity.setRoleId(loginDTO.getRoleId());
 	    loginEntity.setIsActive(1);
 	    
@@ -199,6 +218,37 @@ public class MasterServiceImpl  implements MasterService{
 	@Transactional
 	public Long deleteLogin(Long loginId, String userName) {
 	    return masterDao.deleteLogin(loginId, userName);
+	}
+
+	@Override
+	public List<RoleSecurityDTO> getRoleSecurityList() {
+		return masterDao.getRoleSecurityList();
+	}
+
+	@Override
+	public boolean existsByUsername(String username) {
+		// TODO Auto-generated method stub
+		return masterDao.existsByUsername(username);
+	}
+
+	@Override
+	public boolean existsByDivisionCode(String divisionCode) {
+		return masterDao.existsByDivisionCode(divisionCode);
+	}
+	
+	@Override
+	public boolean existsByEmpNo(String empNo) {
+		return masterDao.existsByEmpNo(empNo);
+	}
+
+	@Override
+	public List<MainModuleDTO> getMainModuleList() {
+		return masterDao.getMainModuleList();
+	}
+
+	@Override
+	public List<SubModuleDTO> getSubModuleList() {
+		return masterDao.getSubModuleList();
 	}
     
 }

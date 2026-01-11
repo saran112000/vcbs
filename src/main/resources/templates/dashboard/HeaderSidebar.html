@@ -43,41 +43,26 @@
         
         
         
-	<div class="sidebar">
-    <ol class="menu" style="list-style: none; padding: 0;">
-        <li class="menu-item">
-            <span class="menu-title">
-                <i class="fas fa-database" style="margin-right: 10px;"></i> Master
-            </span>
-            <ol class="submenu">
-                <li><a th:href="@{/login-list}">Login List</a></li>
-                <li><a th:href="@{/officer}">Officer</a></li>
-                <li><a th:href="@{/Rolle}">Rolles</a></li>
-            </ol>
-        </li>
-
-        <li class="menu-item">
-            <span class="menu-title">
-                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Reports
-            </span>
-            <ol class="submenu">
-                <li><a th:href="@{/Booking-report}">Booking  Report</a></li>
-                <li><a th:href="@{/Cancle-report}">Cancle Report</a></li>
-            </ol>
-        </li>
-        
-         <li class="menu-item">
-            <span class="menu-title">
-                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Booking
-            </span>
-            <ol class="submenu">
-                <li><a th:href="@{/bookings}">Drona Booking</a></li>
-                <li><a th:href="@{/Internet-Report}">Internet Report</a></li>
-            </ol>
-        </li>
-    </ol>
-</div>
-
+					<div class="sidebar">
+					    <ol class="menu" style="list-style: none; padding: 0;">
+					        <li class="menu-item" th:each="main : ${mainModuleList}">
+					            <span class="menu-title">
+					                <i th:class="${main.moduleIcon}" style="margin-right: 10px;"></i>
+					                <span th:text="${main.moduleName}">Main Menu</span>
+					            </span>
+					            
+					            <ol class="submenu">
+					                <th:block th:each="sub : ${subModuleList}">
+					                    <li th:if="${sub.moduleId == main.moduleId}">
+					                        <a th:href="@{${sub.moduleDetailsUrl}}" th:text="${sub.moduleDetailsName}">
+					                            Sub Menu Item
+					                        </a>
+					                    </li>
+					                </th:block>
+					            </ol>
+					        </li>
+					    </ol>
+					</div>
 
 
                    <!--     <a class="nav-btn active" th:href="@{/master}">

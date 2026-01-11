@@ -7,8 +7,9 @@ import com.bookings.vcbs.master.dto.EmployeeDesignationDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.LoginDetails;
-import com.bookings.vcbs.master.modal.Employee;
-import com.bookings.vcbs.master.modal.EmployeeDesignation;
+import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleSecurityDTO;
+import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
 import com.bookings.vcbs.master.projection.LoginProjection;
 
@@ -41,4 +42,17 @@ public interface MasterService {
 	public Long saveLogin(LoginDTO loginDTO, String userName, String action);
 	
 	public Long deleteLogin(Long loginId, String userName);
+
+	List<RoleSecurityDTO> getRoleSecurityList();
+
+	boolean existsByUsername(String username);
+
+	boolean existsByDivisionCode(String divisionCode);
+	
+	boolean existsByEmpNo(String empNo);
+
+	List<MainModuleDTO> getMainModuleList();
+
+	List<SubModuleDTO> getSubModuleList();
+	
 }

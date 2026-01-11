@@ -21,7 +21,7 @@ public class Login {
     private String password;
 
     @Column(name = "role_id")
-    private String roleId;
+    private Long roleId;
 
     @Column(name = "emp_id", nullable = false)
     private Long empId;
