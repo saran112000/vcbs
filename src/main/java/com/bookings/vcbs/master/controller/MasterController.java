@@ -14,11 +14,15 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.bookings.vcbs.master.dto.EmployeeDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
+import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleSecurityDTO;
+import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.service.MasterService;
 
 import jakarta.servlet.http.HttpSession;
@@ -44,6 +48,12 @@ public class MasterController {
 		List<EmployeeDTO> employeeList = masterService.getEmployeeList();
 		model.addAttribute("employeeList", employeeList != null ? employeeList : new ArrayList<>());
 		
+		List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
+		
+		List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
+		
         model.addAttribute("division", new EmployeeDivisionDTO());
         return "masters/division";
     }
@@ -59,6 +69,12 @@ public class MasterController {
     		redirect.addFlashAttribute("errorMessage", "Division data is missing!");
     		return "redirect:/division/list";
     	}
+    	
+    	boolean check = masterService.existsByDivisionCode(divisionDTO.getDivisionCode());
+		if(check) {
+			redirect.addFlashAttribute("errorMessage", "Division Code " + divisionDTO.getDivisionCode() + " Already Exists!");
+			 return "redirect:/division/list";
+		}
     	
     	divisionDTO.setLabcode(labcode);
     	
@@ -124,6 +140,12 @@ public class MasterController {
         model.addAttribute("designationList", masterService.getEmployeeDesignationList());
         model.addAttribute("divisionList", masterService.getAllDivisions());
         
+        List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
+		
+		List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
+        
         model.addAttribute("employee", new EmployeeDTO());
         return "masters/employee";
     }
@@ -137,6 +159,12 @@ public class MasterController {
             redirect.addFlashAttribute("errorMessage", "Employee data is missing!");
             return "redirect:/employee/list";
         }
+        
+        boolean check = masterService.existsByEmpNo(employeeDTO.getEmpNo());
+		if(check) {
+			redirect.addFlashAttribute("errorMessage", "Employee Number " + employeeDTO.getEmpNo() + " Already Exists!");
+			 return "redirect:/employee/list";
+		}
         
         employeeDTO.setLabcode(labcode);
         Long status = masterService.saveEmployee(employeeDTO, userName, action);
@@ -164,17 +192,24 @@ public class MasterController {
     }
     
     
-    /* ----------------------------------------- User Manager -------------------------------------- */
-	
     /* ----------------------------------------- Login Details -------------------------------------- */
 
-    @GetMapping("/login-list")
+    @GetMapping("/login/list")
     public String loginList(Model model) {
         List<LoginDTO> loginList = masterService.getAllLogins();
         model.addAttribute("loginList", loginList != null ? loginList : new ArrayList<>());
         
         List<EmployeeDTO> employeeList = masterService.getEmployeeList();
         model.addAttribute("employeeList", employeeList != null ? employeeList : new ArrayList<>());
+        
+        List<RoleSecurityDTO> roleSecurityList = masterService.getRoleSecurityList();
+        model.addAttribute("roleSecurityList", roleSecurityList != null ? roleSecurityList : new ArrayList<>());
+        
+        List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
+		
+		List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
         
         model.addAttribute("loginForm", new LoginDTO());
         return "masters/loginList";
@@ -186,18 +221,23 @@ public class MasterController {
         
         if(loginDTO == null || action == null) {
             redirect.addFlashAttribute("errorMessage", "Login data is missing!");
-            return "redirect:/login-list";
+            return "redirect:/login/list";
         }
         
         Long status = masterService.saveLogin(loginDTO, userName, action);
-        
         if(status != null && status > 0) {
             redirect.addFlashAttribute("successMessage", "User " + (action.equalsIgnoreCase("add") ? "added" : "updated") + " successfully!");
         } else {
             redirect.addFlashAttribute("errorMessage", "Something went wrong (Username might already exist)!");
         }
         
-        return "redirect:/login-list";
+        return "redirect:/login/list";
+    }
+    
+    @GetMapping("/login/check-username")
+    @ResponseBody
+    public boolean checkUsername(@RequestParam String username) {
+        return masterService.existsByUsername(username); 
     }
 
     @PostMapping("/login/delete/{loginId}")
@@ -210,7 +250,7 @@ public class MasterController {
         } else {
             redirect.addFlashAttribute("errorMessage", "Action failed!");
         }
-        return "redirect:/login-list";
+        return "redirect:/login/list";
     }
 	
 	

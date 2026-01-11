@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Manager</title>
+    
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap/css/dataTables.bootstrap5.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+    
+    <script th:src="@{/js/script.js}" defer></script>
+  
+    <script th:src="@{/bootstrap/js/jquery-3.7.1.js}"></script>
+
+	<script th:src="@{/bootstrap/js/dataTables.js}"></script>
+	
+	<script th:src="@{/bootstrap/js/dataTables.bootstrap5.js}"></script>
+	
+	<script th:src="@{/bootstrap/js/bootstrap.bundle.min.js}"></script>
+	
+	<script th:src="@{/sweetalert/js/sweetalert2.all.min.js}"></script>
+    
+    <script th:inline="javascript">
+    /* Defines a global variable for the context path */
+    const contextPath = /*[[@{/}]]*/ '';
+</script>
+
+
+</head>
+<body>
+  
+
+
+ <div id="dashboardPage" class="page">
+
+        <div class="dashboard-header">
+            <div class="header-left">
+                <div class="logo-mini">
+                    <i class="fas fa-video"></i>
+                    <span>VC Booking</span>
+                </div>
+                <h1>Welcome to Booking Page</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="loggedInUser">User</span>
+                </div>
+					              <a th:href="@{/login}" style="text-decoration: none;">
+					    <button class="btn-logout" id="logoutBtn">
+					        <i class="fas fa-sign-out-alt"></i> Logout
+					    </button>
+					</a>
+            </div>
+        </div>
+        
+        
+        
+	<div class="sidebar">
+    <ol class="menu" style="list-style: none; padding: 0;">
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-database" style="margin-right: 10px;"></i> Master
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/login-list}">Login List</a></li>
+                <li><a th:href="@{/officer}">Officer</a></li>
+                
+                 <li><a th:href="@{/division/list}">Division</a></li>
+                  <li><a th:href="@{/Rooms}">Rooms</a></li>
+            </ol>
+        </li>
+
+        <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Reports
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/Booking-report}">Booking  Report</a></li>
+                <li><a th:href="@{/Cancle-report}">Cancle Report</a></li>
+            </ol>
+        </li>
+        
+         <li class="menu-item">
+            <span class="menu-title">
+                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Booking
+            </span>
+            <ol class="submenu">
+                <li><a th:href="@{/bookings}">Drona Booking</a></li>
+                <li><a th:href="@{/Internet-Report}">Internet Report</a></li>
+            </ol>
+        </li>
+    </ol>
+</div>
+
+
+<div class="main-content">
+    <div class="page-header">
+        <h2><i class="fas fa-user-shield"></i> Login Management</h2>
+        <p>Manage System Access and User Roles</p>
+    </div>
+
+    <div class="glass-effect">
+        <h3>User Login List</h3>
+        <table class="table table-bordered" id="login-table">
+            <thead class="table-dark">
+                <tr>
+                    <th>S.No</th>
+                    <th>Username</th>
+                    <th>Employee Name</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user, iterStat : ${loginList}">
+                    <td style = "text-align: center;" th:text="${iterStat.count + '.'}">1</td>
+                    <td th:text="${user.username}">admin</td>
+                    <td th:text="${user.empDetails}">-</td>
+                    <td th:text="${user.roleName}">ADMIN</td>
+                   <td class="text-center">
+					    <button class="btn btn-outline-primary btn-sm" 
+					            th:onclick="editLogin([[${user}]])">
+					        <i class="fas fa-edit"></i>
+					    </button>
+					    <button class="btn btn-outline-danger btn-sm" 
+					            th:onclick="'confirmDeleteLogin(' + ${user.loginId} + ')'">
+					        <i class="fas fa-trash"></i>
+					    </button>
+					</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button type="button" id="resetBtn" class="btn btn-secondary mt-3" onclick="resetForm()" style="display:none;">Add New User</button>
+        <hr>
+
+        <div class="action-div">
+            <form id="loginForm" th:action="@{/login/save}" th:object="${loginForm}" method="POST">
+                <input type="hidden" id="loginId" th:field="*{loginId}" />
+                <input type="hidden" id="formAction" name="formAction" value="add" />
+
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label>Username</label>
+                        <input type="text" id="userName" th:field="*{username}" class="form-control" placeholder="Enter Username">
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Employee</label>
+                        <select id="empId" th:field="*{empId}" class="form-control">
+                            <option value="">-- Select Employee --</option>
+                            <option th:each="emp : ${employeeList}" th:value="${emp.empId}" th:text="${emp.empName}"></option>
+                        </select>  
+                    </div>
+                    <div class="col-md-4 form-group">  
+                        <label>Role</label>
+                        <select id="roleId" th:field="*{roleId}" class="form-control">
+						    <option value="">-- Select Role --</option>
+						    <option th:each="role : ${roleSecurityList}" 
+						            th:value="${role.roleId}" 
+						            th:text="${role.roleName}">
+						    </option>
+						</select>
+                    </div>
+                </div>
+                <div style = "text-align: center;">
+                 <button type="button" id="saveBtn" class="btn btn-primary mt-3" onclick="validateAndSubmit()">Add User</button>
+                </div>
+               
+            </form>
+        </div>
+    </div>
+</div>
+
+    </div> 
+    
+
+		<script th:if="${successMessage}">
+		Swal.fire("Success", "[[${successMessage}]]", "success");
+		</script>
+		
+		<script th:if="${errorMessage}">
+		    Swal.fire("Error", "[[${errorMessage}]]", "error");
+		</script>
+		
+		<script th:inline="javascript">
+
+		function editLogin(data) {
+	        if(!data) return;
+	        
+	        document.getElementById("loginId").value = data.loginId || "";
+	        document.getElementById("userName").value = data.username || "";
+	        document.getElementById("userName").readOnly = true;
+	        document.getElementById("empId").value = data.empId || "";
+	        document.getElementById("roleId").value = data.roleId || "";
+	        
+	        document.getElementById("formAction").value = "edit";
+	        document.getElementById("saveBtn").innerText = "Update User";
+	        document.getElementById("resetBtn").style.display = "block";
+	        
+	        document.getElementById("loginForm").scrollIntoView({ behavior: 'smooth' });
+	    }
+
+	    function resetForm() {
+	        window.location.reload();
+	    }
+
+		</script>
+		
+		
+		<script>
+		// Add this inside your $(document).ready() or script block
+	    document.getElementById("userName").addEventListener("blur", function() {
+	        const username = this.value.trim();
+	        const action = document.getElementById("formAction").value;
+
+	        // Only check if it's a NEW user (add mode)
+	        if (username && action === 'add') {
+	            checkUsernameAvailability(username);
+	        }
+	    });
+
+	    async function checkUsernameAvailability(username) {
+	        try {
+	            const response = await fetch(contextPath + 'login/check-username?username=' + encodeURIComponent(username));
+	            const isTaken = await response.json();
+
+	            if (isTaken) {
+	                Swal.fire("Username Taken", "This username "+ username +" already exists. Please choose another.", "error");
+	                document.getElementById("userName").value = ""; // Clear the field
+	                return false;
+	            }
+	            return true;
+	        } catch (error) {
+	            console.error("Error checking username:", error);
+	            return true; // Proceed if server check fails, or handle as you prefer
+	        }
+	    }
+
+	    // Update your existing validateAndSubmit function
+	    async function validateAndSubmit() {
+	        const userName = document.getElementById("userName").value.trim();
+	        const empId = document.getElementById("empId").value;
+	        const roleId = document.getElementById("roleId").value;
+	        const action = document.getElementById("formAction").value;
+
+	        if (!userName || !empId || !roleId) {
+	            Swal.fire("Validation Error", "All fields are required!", "warning");
+	            return;
+	        }
+
+	        // FINAL CHECK before submit (for "Add" mode)
+	        if (action === 'add') {
+	            const response = await fetch(contextPath + 'login/check-username?username=' + encodeURIComponent(userName));
+	            const isTaken = await response.json();
+	            if (isTaken) {
+	                Swal.fire("Error", "Username already exists!", "error");
+	                return;
+	            }
+	        }
+
+	        const text = action === 'add' ? "Add this new user?" : "Update this user's details?";
+
+	        Swal.fire({
+	            title: "Confirm Save",
+	            text: text,
+	            icon: "question",
+	            showCancelButton: true,
+	            confirmButtonText: "Yes, Save",
+	            cancelButtonText: "Cancel"
+	        }).then((result) => {
+	            if (result.isConfirmed) {
+	                document.getElementById("loginForm").submit();
+	            }
+	        });
+	    }
+
+</script>
+
+<script type="text/javascript">
+
+function confirmDeleteLogin(id) {
+    if(!id) {
+        console.error("No ID provided for deletion");
+        return;
+    }
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This user will be deactivated and won't be able to log in.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: "Yes, deactivate!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = contextPath + "login/delete/" + id;
+
+            // Add CSRF Token
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_csrf';
+            csrfInput.value = csrfToken;
+            
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+</script>
+		
+	
+	
+	<script>
+	
+	 $(document).ready(function() {
+	        $('#login-table').DataTable({
+	            "language": {
+	                "emptyTable": "No users found in the system"
+	            }
+	        });
+	    });
+
+
+document.querySelectorAll('.menu-title').forEach(title => {
+    title.addEventListener('click', function() {
+        const parent = this.parentElement;
+        
+        // Toggle 'open' class on the clicked menu item
+        parent.classList.toggle('open')	;
+        
+        // Optional: Close other open menus
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item !== parent) {
+                item.classList.remove('open');
+            }
+        });
+    });
+});
+</script>
+	
+</body>
+
+
+
+</html>
+
+

@@ -6,13 +6,23 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class LoginDTO {
     private Long loginId;
-    private String userName;
-    private String password;
-    private String roleId;
+    private String username;
+    private Long roleId;
+    private String roleName;
     private Long empId;
-    private String empName; 
+    private String empDetails; 
     private Integer isActive;
+    
+    public LoginDTO(Long loginId, String username, Long roleId, String roleName, Long empId, String empDetails, Integer isActive){
+    	
+    	this.loginId = loginId;
+    	this.username = username;
+    	this.roleId = roleId;
+    	this.roleName = roleName;
+    	this.empId = empId;
+    	this.empDetails = empDetails;
+    	this.isActive = isActive;
+    }
 }

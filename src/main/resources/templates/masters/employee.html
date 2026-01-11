@@ -66,41 +66,26 @@
         
         
         
-	<div class="sidebar">
-    <ol class="menu" style="list-style: none; padding: 0;">
-        <li class="menu-item">
-            <span class="menu-title">
-                <i class="fas fa-database" style="margin-right: 10px;"></i> Master
-            </span>
-            <ol class="submenu">
-                <li><a th:href="@{/login-list}">Login List</a></li>
-                <li><a th:href="@{/employee/listr̥}">Officer</a></li>
-                <li><a th:href="@{/division/list}">Division</a></li>
-                <li><a th:href="@{/Rooms}">Rooms</a></li>
-            </ol>
-        </li>
-
-        <li class="menu-item">
-            <span class="menu-title">
-                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Reports
-            </span>
-            <ol class="submenu">
-                <li><a th:href="@{/Booking-report}">Booking  Report</a></li>
-                <li><a th:href="@{/Cancle-report}">Cancle Report</a></li>
-            </ol>
-        </li>
-        
-         <li class="menu-item">
-            <span class="menu-title">
-                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Booking
-            </span>
-            <ol class="submenu">
-                <li><a th:href="@{/bookings}">Drona Booking</a></li>
-                <li><a th:href="@{/Internet-Report}">Internet Report</a></li>
-            </ol>
-        </li>
-    </ol>
-</div>
+				<div class="sidebar">
+			    <ol class="menu" style="list-style: none; padding: 0;">
+			        <li class="menu-item" th:each="main : ${mainModuleList}">
+			            <span class="menu-title">
+			                <i th:class="${main.moduleIcon}" style="margin-right: 10px;"></i>
+			                <span th:text="${main.moduleName}">Main Menu</span>
+			            </span>
+			            
+			            <ol class="submenu">
+			                <th:block th:each="sub : ${subModuleList}">
+			                    <li th:if="${sub.moduleId == main.moduleId}">
+			                        <a th:href="@{${sub.moduleDetailsUrl}}" th:text="${sub.moduleDetailsName}">
+			                            Sub Menu Item
+			                        </a>
+			                    </li>
+			                </th:block>
+			            </ol>
+			        </li>
+			    </ol>
+			</div>
 
     <div class="main-content">
         <div class="page-header">
@@ -299,6 +284,26 @@ $(document).ready(function() {
         "language": {
             "emptyTable": "No divisions found in the system"
         }
+    });
+});
+
+</script>
+
+<script type="text/javascript">
+
+document.querySelectorAll('.menu-title').forEach(title => {
+    title.addEventListener('click', function() {
+        const parent = this.parentElement;
+        
+        // Toggle 'open' class on the clicked menu item
+        parent.classList.toggle('open')	;
+        
+        // Optional: Close other open menus
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item !== parent) {
+                item.classList.remove('open');
+            }
+        });
     });
 });
 

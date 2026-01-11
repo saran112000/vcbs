@@ -7,8 +7,10 @@ import com.bookings.vcbs.master.dto.EmployeeDTO;
 import com.bookings.vcbs.master.dto.EmployeeDesignationDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
+import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleSecurityDTO;
+import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.modal.Employee;
-import com.bookings.vcbs.master.modal.EmployeeDesignation;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
 import com.bookings.vcbs.master.modal.Login;
 
@@ -45,4 +47,16 @@ public interface MasterDao {
 	Long saveLogin(Login login);
 
 	Long deleteLogin(Long loginId, String userName);
+
+	public List<RoleSecurityDTO> getRoleSecurityList();
+
+	public boolean existsByUsername(String username);
+
+	boolean existsByEmpNo(String empNo);
+
+	boolean existsByDivisionCode(String divisionCode);
+
+	public List<MainModuleDTO> getMainModuleList();
+
+	public List<SubModuleDTO> getSubModuleList();
 }

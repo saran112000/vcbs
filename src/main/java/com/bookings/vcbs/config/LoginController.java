@@ -2,9 +2,13 @@ package com.bookings.vcbs.config;
 
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.bookings.vcbs.master.dto.LoginDetails;
+import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.service.MasterService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -70,6 +74,12 @@ public class LoginController {
             ses.setAttribute("labcode", labcode);
 
             model.addAttribute("user", loginDetails);
+            
+            List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+    		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
+    		
+    		List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+    		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
         }
 
         return "static/HeaderSidebar";

@@ -4,6 +4,9 @@ import com.bookings.vcbs.master.dto.EmployeeDTO;
 import com.bookings.vcbs.master.dto.EmployeeDesignationDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
+import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleSecurityDTO;
+import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.modal.Employee;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
 import com.bookings.vcbs.master.modal.Login;
@@ -179,8 +182,20 @@ public class MasterDaoImpl implements MasterDao {
 	@Override
 	public List<LoginDTO> findAllLogins() {
 	    return entityManager.createQuery(
-	        "SELECT new com.bookings.vcbs.master.dto.LoginDTO(l.loginId, l.username, l.password, l.roleId, l.empId, e.empName, l.isActive) " +
-	        "FROM Login l LEFT JOIN Employee e ON e.empId = l.empId WHERE l.isActive = 1", 
+	        """
+	    	SELECT new com.bookings.vcbs.master.dto.LoginDTO(l.loginId, l.username, l.roleId, rs.roleName, l.empId, 
+	    	(CASE 
+                WHEN ed.designation IS NULL OR ed.designation = '' THEN e.empName 
+                ELSE CONCAT(e.empName, ', ', ed.designation) 
+            END) AS empDetails, l.isActive) 
+	        FROM Login l 
+	        LEFT JOIN Employee e ON e.empId = l.empId 
+	        LEFT JOIN EmployeeDesignation ed ON ed.desigId = e.desigId
+	        LEFT JOIN RoleSecurity rs ON rs.roleId = l.roleId
+	        WHERE l.isActive = 1
+	        
+	        
+	    	""", 
 	        LoginDTO.class).getResultList();
 	}
 
@@ -207,5 +222,70 @@ public class MasterDaoImpl implements MasterDao {
 	    }
 	    return 0L;
 	}
+
+	public List<RoleSecurityDTO> getRoleSecurityList() {
+	    return entityManager.createQuery(
+	        "SELECT new com.bookings.vcbs.master.dto.RoleSecurityDTO(r.roleId, r.roleName) " +
+	        "FROM RoleSecurity r", 
+	        RoleSecurityDTO.class
+	    ).getResultList();
+	}
+
+	@Override
+    public boolean existsByUsername(String username) {
+        String hql = "SELECT count(l) FROM Login l WHERE l.username = :username AND l.isActive = 1";
+        Long count = (Long) entityManager.createQuery(hql)
+                .setParameter("username", username)
+                .getSingleResult();
+        return count > 0;
+    }
+	
+	@Override
+	public boolean existsByDivisionCode(String divisionCode) {
+		String hql = "SELECT count(d) FROM EmployeeDivision d WHERE d.divisionCode = :divisionCode AND d.isActive = 1";
+		Long count = (Long) entityManager.createQuery(hql)
+				.setParameter("divisionCode", divisionCode)
+				.getSingleResult();
+		return count > 0;
+	}
+	
+	@Override
+	public boolean existsByEmpNo(String empNo) {
+		String hql = "SELECT count(e) FROM Employee e WHERE e.empNo = :empNo AND e.isActive = 1";
+		Long count = (Long) entityManager.createQuery(hql)
+				.setParameter("empNo", empNo)
+				.getSingleResult();
+		return count > 0;
+	}
+
+	@Override
+    public List<MainModuleDTO> getMainModuleList() {
+        // Use fully qualified path for the DTO in the query
+        String hql = """
+            SELECT new com.bookings.vcbs.master.dto.MainModuleDTO(
+                m.moduleId, m.moduleName, m.moduleIcon, m.isActive
+            )
+            FROM Module m 
+            WHERE m.isActive = 1 
+            ORDER BY m.serialNo ASC
+        """;
+
+        return entityManager.createQuery(hql, MainModuleDTO.class).getResultList();
+    }
+
+    @Override
+    public List<SubModuleDTO> getSubModuleList() {
+        // Ensure constructor order matches: ID, ModuleID, Name, URL, Active
+        String hql = """
+            SELECT new com.bookings.vcbs.master.dto.SubModuleDTO(
+                s.moduleDetailsId, s.moduleId, s.moduleDetailsName, s.moduleDetailsUrl, s.isActive
+            )
+            FROM ModuleDetails s 
+            WHERE s.isActive = 1 
+            ORDER BY s.serialNo ASC
+        """;
+
+        return entityManager.createQuery(hql, SubModuleDTO.class).getResultList();
+    }
 
 }
