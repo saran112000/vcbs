@@ -80,13 +80,13 @@ public class LoginController {
     	logger.info(new Date() +"Inside sessionExpired ");
     	try 
     	{
-    		resp.sendRedirect("/login");
+    		return "redirect:/login?sessionExpired";
         }
       	catch (Exception e) {
 				e.printStackTrace();
 			}
     	
-        return "SessionExp";
+        return "redirect:/login?sessionExpired";
     }
     
    

@@ -32,7 +32,7 @@ public class UiSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/fontawesome/**", "/fontfamily/**").permitAll()
+                        .requestMatchers("/login", "/api/**","/css/**", "/js/**", "/images/**", "/fontawesome/**", "/fontfamily/**").permitAll()
                         .requestMatchers("/").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
