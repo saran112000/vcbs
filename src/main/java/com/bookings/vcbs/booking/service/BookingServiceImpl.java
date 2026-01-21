@@ -8,11 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bookings.vcbs.booking.dao.BookingRequestDTO;
+import com.bookings.vcbs.booking.dto.BookingRequestDTO;
 import com.bookings.vcbs.booking.modal.Bookings;
 import com.bookings.vcbs.booking.modal.BookingsSlotDetails;
 import com.bookings.vcbs.booking.repository.BookingRepository;
 import com.bookings.vcbs.booking.repository.BookingSlotRepository;
+import com.bookings.vcbs.master.dto.EmployeeDTO;
 
 @Service
 @Transactional
@@ -46,6 +47,11 @@ public class BookingServiceImpl implements BookingService {
         bookingSlotRepository.save(slot);
 		return null;
 		
+    }
+    @Override
+    public List<EmployeeDTO> getEmployeeList() {
+    	List<EmployeeDTO> list = masterDao.getEmployeeList();
+        return list;
     }
 
 

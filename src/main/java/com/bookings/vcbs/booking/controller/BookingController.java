@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.bookings.vcbs.booking.dao.BookingRequestDTO;
+import com.bookings.vcbs.booking.dto.BookingRequestDTO;
 import com.bookings.vcbs.booking.projection.BookingRoomProjection;
 import com.bookings.vcbs.booking.projection.BookingRoomTypeProjection;
 import com.bookings.vcbs.booking.repository.BookingRepository;
@@ -95,6 +95,10 @@ import jakarta.servlet.http.HttpServletRequest;
 		  
 		    @GetMapping("/booking/book")
 		    public String employeeList(Model model) {
+		    	
+		    	
+		    	 List<EmployeeDTO> employeeList = masterService.getEmployeeList();
+		         model.addAttribute("employeeList", employeeList != null ? employeeList : new ArrayList<>());
 		        
 		        
 		        model.addAttribute("booking", new BookingRequestDTO());

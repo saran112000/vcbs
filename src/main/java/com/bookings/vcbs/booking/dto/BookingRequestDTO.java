@@ -1,4 +1,4 @@
-package com.bookings.vcbs.booking.dao;
+package com.bookings.vcbs.booking.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

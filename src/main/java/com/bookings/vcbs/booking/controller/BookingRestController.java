@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bookings.vcbs.booking.dao.BookingRequestDTO;
+import com.bookings.vcbs.booking.dto.BookingRequestDTO;
 import com.bookings.vcbs.booking.repository.RoomDetailRepository;
 import com.bookings.vcbs.booking.service.BookingService;
 import com.bookings.vcbs.master.modal.RoomDetail;
