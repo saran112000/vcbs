@@ -563,5 +563,134 @@ select {
     background-color: #28a745; /* green */
     color: white;
 }
+
+
+/* Already booked slots - Highlighted in Red */
+.slot.booked-active {
+    background-color: #ff4d4d !important; /* Bright Red */
+    color: #fff !important;
+    border-color: #cc0000;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Hide the checkbox for booked slots to keep it clean */
+.slot.booked-active input {
+    display: none;
+}
+
+/* Style for slots already taken in the database */
+.slot.booked-active {
+    background-color: #e74c3c !important; /* Red */
+    color: white !important;
+    border-color: #c0392b;
+    cursor: not-allowed;
+    pointer-events: none; /* Prevents clicking */
+}
+
+/* Style for slots the user is currently selecting */
+.slot.active {
+    background-color: #2ecc71 !important; /* Green */
+    color: white;
+}
+
+.time-slots {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    /* Default Slot Style (Available) */
+    .slot {
+        display: block;
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        transition: all 0.2s;
+    }
+
+    /* Selecting State (Turn GREEN when checked) */
+    .slot:has(input:checked) {
+        background-color: #2ecc71 !important;
+        color: white !important;
+        border-color: #27ae60;
+    }
+
+    /* Already Booked State (Turn RED from Database) */
+    .slot.booked-active {
+        background-color: #e74c3c !important;
+        color: white !important;
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
+    /* Hide the actual checkbox input */
+    .slot input[type="checkbox"] {
+        display: none;
+    }
+    
+    /* Container for the table */
+.cancel-container {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Styled Table */
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.booking-table th {
+    background-color: #34495e; /* Matches your sidebar theme */
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+.booking-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+/* Hover effect on rows */
+.booking-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* The Cancel Action Button */
+.btn-cancel-action {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.btn-cancel-action:hover {
+    background-color: #c0392b;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Status Badge */
+.status-active {
+    background: #d4edda;
+    color: #155724;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
  
 

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <script th:src="@{/js/script.js}"></script>
+    
+       
+    <script th:src="@{/js/script.js}" defer></script>
+  
+    <script th:src="@{/bootstrap/js/jquery-3.7.1.js}"></script>
+
+	<script th:src="@{/bootstrap/js/dataTables.js}"></script>
+	
+	<script th:src="@{/bootstrap/js/dataTables.bootstrap5.js}"></script>
+	
+	<script th:src="@{/bootstrap/js/bootstrap.bundle.min.js}"></script>
+	
+	<script th:src="@{/sweetalert/js/sweetalert2.all.min.js}"></script>
+    
+    <script th:inline="javascript">
+    /* Defines a global variable for the context path */
+    const contextPath = /*[[@{/}]]*/ '';
+</script>
+    
+
+</head>
+<body>
+
+
+
+<div id="dashboardPage" class="page">
+    <div class="dashboard-header">
+            <div class="header-left">
+                <div class="logo-mini">
+                    <i class="fas fa-video"></i>
+                    <span>VC Booking</span>
+                </div>
+                <h1>Welcome to Booking Page</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="loggedInUser">User</span>
+                </div>
+					              <a th:href="@{/login}" style="text-decoration: none;">
+					    <button class="btn-logout" id="logoutBtn">
+					        <i class="fas fa-sign-out-alt"></i> Logout
+					    </button>
+					</a>
+            </div>
+        </div>
+        
+        
+        
+				<div class="sidebar">
+			    <ol class="menu" style="list-style: none; padding: 0;">
+			        <li class="menu-item" th:each="main : ${mainModuleList}">
+			            <span class="menu-title">
+			                <i th:class="${main.moduleIcon}" style="margin-right: 10px;"></i>
+			                <span th:text="${main.moduleName}">Main Menu</span>
+			            </span>
+			            
+			            <ol class="submenu">
+			                <th:block th:each="sub : ${subModuleList}">
+			                    <li th:if="${sub.moduleId == main.moduleId}">
+			                        <a th:href="@{${sub.moduleDetailsUrl}}" th:text="${sub.moduleDetailsName}">
+			                            Sub Menu Item
+			                        </a>
+			                    </li>
+			                </th:block>
+			            </ol>
+			        </li>
+			    </ol>
+			</div>
+<!-- MAIN CONTENT -->
+ <div class="content">
+
+    <div th:if="${successMessage}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-error">
+        <i class="fas fa-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+    </div>
+
+    <div class="cancel-container">
+        <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+            <i class="fas fa-calendar-times"></i> My Active Bookings
+        </h2>
+
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Room Number</th>
+                    <th>Meeting Subject</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="booking : ${myBookings}">
+                    <td th:text="${booking.bookingDate}">2026-01-26</td>
+                    <td th:text="${booking.roomNo}">Room 101</td>
+                    <td th:text="${booking.subject}">Project Review</td>
+                    <td><span class="status-active" th:text="${booking.status}">ACTIVE</span></td>
+                    <td>
+                        <button class="btn-cancel-action" 
+                                th:onclick="'confirmCancellation(' + ${booking.bookingId} + ')'">
+                            <i class="fas fa-trash-alt"></i> Cancel Booking
+                        </button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(myBookings)}">
+                    <td colspan="5" style="text-align: center; color: #7f8c8d; padding: 40px;">
+                        No active bookings found.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<form id="cancelForm" th:action="@{/booking/cancel}" method="post" style="display:none;">
+    <input type="hidden" name="bookingId" id="hiddenBookingId">
+    <input type="hidden" name="Reason" id="hiddenReason">
+</form>
+
+<script th:inline="javascript">
+function confirmCancellation(bookingId) {
+    Swal.fire({
+        title: 'Cancel this booking?',
+        text: "Please provide a reason for the cancellation:",
+        icon: 'warning',
+        input: 'textarea',
+        inputPlaceholder: 'e.g., Meeting rescheduled, Room not needed...',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#95a5a6',
+        confirmButtonText: 'Yes, cancel it!',
+        cancelButtonText: 'No, keep it',
+        preConfirm: (reason) => {
+            if (!reason || reason.trim() === "") {
+                Swal.showValidationMessage('You must provide a reason');
+            }
+            return reason;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Populate the hidden form fields
+            document.getElementById('hiddenBookingId').value = bookingId;
+            document.getElementById('hiddenReason').value = result.value;
+            
+            // Submit the form to the server
+            document.getElementById('cancelForm').submit();
+        }
+    });
+}
+</script>
+</body>
+
+</html>
+
+

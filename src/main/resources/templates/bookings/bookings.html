@@ -37,9 +37,8 @@
 
 
 
- <div id="dashboardPage" class="page" th:fragment="header_nav">
-
-        <div class="dashboard-header">
+<div id="dashboardPage" class="page">
+    <div class="dashboard-header">
             <div class="header-left">
                 <div class="logo-mini">
                     <i class="fas fa-video"></i>
@@ -62,49 +61,33 @@
         
         
         
-	<div class="sidebar">
-    <ol class="menu" style="list-style: none; padding: 0;">
-        <li class="menu-item">
-            <span class="menu-title">
-                <i class="fas fa-database" style="margin-right: 10px;"></i> Master
-            </span>
-            <ol class="submenu">
-                <li><a th:href="@{/login-list}">Login List</a></li>
-                <li><a th:href="@{/officer}">Officer</a></li>
-                <li><a th:href="@{/division/list}">Division</a></li>
-                  <li><a th:href="@{/Rooms}">Rooms</a></li>
-            </ol>
-        </li>
-
-        <li class="menu-item">
-            <span class="menu-title">
-                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Reports
-            </span>
-            <ol class="submenu">
-                <li><a th:href="@{/Booking-report}">Booking  Report</a></li>
-                <li><a th:href="@{/Cancle-report}">Cancle Report</a></li>
-            </ol>
-        </li>
-        
-         <li class="menu-item">
-            <span class="menu-title">
-                <i class="fas fa-file-alt" style="margin-right: 10px;"></i> Booking
-            </span>
-            <ol class="submenu">
-                <li><a th:href="@{/bookings}">Drona Booking</a></li>
-                <li><a th:href="@{/Internet-Report}">Internet Report</a></li>
-            </ol>
-        </li>
-    </ol>
-</div>
+				<div class="sidebar">
+			    <ol class="menu" style="list-style: none; padding: 0;">
+			        <li class="menu-item" th:each="main : ${mainModuleList}">
+			            <span class="menu-title">
+			                <i th:class="${main.moduleIcon}" style="margin-right: 10px;"></i>
+			                <span th:text="${main.moduleName}">Main Menu</span>
+			            </span>
+			            
+			            <ol class="submenu">
+			                <th:block th:each="sub : ${subModuleList}">
+			                    <li th:if="${sub.moduleId == main.moduleId}">
+			                        <a th:href="@{${sub.moduleDetailsUrl}}" th:text="${sub.moduleDetailsName}">
+			                            Sub Menu Item
+			                        </a>
+			                    </li>
+			                </th:block>
+			            </ol>
+			        </li>
+			    </ol>
+			</div>
 <!-- MAIN CONTENT -->
  <div class="content">
 
             <div class="content-section">
 
             
-					                <div class="page-header">
-					        <h2><i class="fas fa-user-plus"></i> Room Booking</h2>
+					       
 					        
 					    </div>
 
@@ -112,49 +95,58 @@
                 <div class="card">
                 
                 
-                  <form id="bookingForm" th:action="@{/booking/add}" th:object="${booking}" method="POST">
+ <form id="bookingForm" th:action="@{/booking/add}" th:object="${booking}" method="POST">
 
     <div class="card">
         <div class="form-row">
 
             <div class="input-group">
-                <label>Room Type</label>
+                <label style="color: white; font-weight: bold;">Room Type</label>
                 <select name="roomTypeId" id="roomType" onchange="filterRoomsByType()">
-                    <option value="">Select Room Type</option>
-                    <option th:each="room : ${roomsType}"
-                            th:value="${room.roomTypeId}"
-                            th:text="${room.roomType}">
-                    </option>
-                </select>
+   
+    <option th:each="type : ${roomsType}"
+            th:value="${type.roomTypeId}"
+            th:text="${type.roomType}"
+            th:selected="${type.roomTypeId == defaultRoomTypeId}">
+    </option>
+</select>
             </div>
 
             <div class="input-group">
-                <label>Room No</label>
-                <select name="roomId" id="roomNo">
-                    <option value="">Select Room No</option>
-                </select>
+                <label style="color: white; font-weight: bold;">Room No</label>
+                <select name="roomId" id="roomNo" th:field="*{roomId}" onchange="loadBookedSlots()">
+   
+</select>
+   
+</select>
             </div>
 
             <div class="input-group">
-                <label>Date</label>
-                <input type="date" name="bookingDate" id="bookingDate">
+                <label style="color: white; font-weight: bold;">Date</label>
+<input type="date" id="bookingDate" th:field="*{bookingDate}" onchange="loadBookedSlots()">
+       </div>
+
+            <div class="input-group">
+                <label style="color: white; font-weight: bold;">Employee Name</label>
+                
+               <select name="employeeId" id="employeeId" th:field="*{empID}">
+   
+    <option th:each="emp : ${employees}" 
+            th:value="${emp.empId}" 
+            th:text="${emp.empName}">
+    </option>
+</select>
+                
             </div>
 
             <div class="input-group">
-                <label>Employee Name</label>
-                <select name="employeeId" id="employeeId">
-                    <option value="">Select Employee</option>
-                </select>
+                <label style="color: white; font-weight: bold;">Guest</label>
+                <input type="text" name="guest" id="guest" placeholder="Enter guest name" th:field="*{guest}">
             </div>
 
             <div class="input-group">
-                <label>Guest</label>
-                <input type="text" name="guest" id="guest" placeholder="Enter guest name">
-            </div>
-
-            <div class="input-group">
-                <label>Subject</label>
-                <input type="text" name="subject" id="subject" placeholder="Enter meeting subject">
+                <label style="color: white; font-weight: bold;">Subject</label>
+                <input type="text" name="subject" id="subject" placeholder="Enter meeting subject"  th:field="*{subject}">
             </div>
 
         </div>
@@ -163,55 +155,14 @@
     <!-- ===== Time Slots (MULTI SELECT) ===== -->
     <br>
     <div class="card">
-        <h3><i class="fas fa-clock"></i> Time Slots</h3>
-
-        <div class="time-slots">
-
-            <!-- Each slot is a checkbox -->
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="09:00 - 09:30"> 09:00 - 09:30
-            </label>
-
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="09:30 - 10:00"> 09:30 - 10:00
-            </label>
-
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:00 - 10:30"> 10:00 - 10:30
-            </label>
-
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:30 - 11:00"> 10:30 - 11:00
-            </label>
-             <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:30 - 11:00"> 11:00 - 11:30
-            </label>
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:30 - 11:00"> 11:30 - 12:00
-            </label>
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:30 - 11:00"> 12:30 - 1:00
-            </label>
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:30 - 11:00"> 1:30 - 2:00
-            </label>
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:30 - 11:00"> 2:30 - 3:00
-            </label>
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:30 - 11:00"> 3:00 - 3:30
-            </label>
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:30 - 11:00"> 3:30 - 4:00
-            </label>
-            <label class="slot">
-                <input type="checkbox" name="slotTimes" value="10:30 - 11:00"> 4:00 - 4:30
-            </label>
-            
-
-           
-
-        </div>
+        <h3 style="color: white; font-weight: bold;"><i class="fas fa-clock"></i> Time Slots</h3>
+<br>
+       <div class="time-slots">
+    <label class="slot" th:each="time : ${availableSlots}">
+        <input type="checkbox" th:field="*{Slot}" th:value="${time}" />
+        <span th:text="${time}"></span>
+    </label>
+</div>
     </div>
 
     <div class="action-buttons">
@@ -243,59 +194,21 @@
 ================================ */
 let selectedSlotTime = null;
 
-/* ================================
-   BOOK SLOT BUTTON CLICK
-================================ */
-/* document.querySelector('.btn-book-slot').addEventListener('click', function () {
-
-    const roomId = document.getElementById("roomNo").value;
-    const bookingDate = document.querySelector('input[type="date"]').value;
-    const guest = document.querySelector('input[placeholder="Enter guest name"]').value;
-    const subject = document.querySelector('input[placeholder="Enter meeting subject"]').value;
-    const slotTime = selectedSlotTime;
-
-    if (!roomId || !bookingDate || !guest || !subject || !slotTime) {
-        Swal.fire("Warning", "Please fill all fields and select a slot", "warning");
-        return;
-    }
-    
-    console.log("${contextPath}*****"+contextPath);
-
-    const token = document.querySelector('meta[name="_csrf"]').content;
-    const header = document.querySelector('meta[name="_csrf_header"]').content;
-
-    fetch(`${contextPath}api/book-slot`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId, bookingDate, guest, subject, slotTime })
-    })
-    .then(data => {
-        if (!data) return; // Exit if redirected
-        if (data.status === "SUCCESS") {
-            Swal.fire("Success", "Slot booked successfully", "success");
-            resetForm();
-        } else {
-            Swal.fire("Error", data.message || "Booking failed", "error");
-        }
-    })
-    .catch(err => {
-        console.error("Fetch Error:", err);
-        Swal.fire("Error", "Session may have expired. Please refresh.", "error");
-    });
-}); */
 
 
-function submitEmployeeForm() {
+
+function submitBookingForm() {
 	const roomId = document.getElementById("roomNo").value;
     const bookingDate = document.querySelector('input[type="date"]').value;
     const guest = document.querySelector('input[placeholder="Enter guest name"]').value;
     const subject = document.querySelector('input[placeholder="Enter meeting subject"]').value;
-    const slotTime = selectedSlotTime;
+    const slotTime = selectedSlotTime
+	const form = document.getElementById("bookingForm");
 
-    if (!empNo || !empName || desigId === "0") {
+   /*  if (!empNo || !empName || desigId === "0") {
         Swal.fire("Validation Error", "Please fill required fields (No, Name, Designation)", "warning"); 
         return;
-    }
+    } */
 
     Swal.fire({
         title: "Confirm Save",
@@ -304,7 +217,7 @@ function submitEmployeeForm() {
         showCancelButton: true,
         confirmButtonText: "Yes, Save"
     }).then((result) => {
-        if (result.isConfirmed) form.submit();
+        if (result.isConfirmed) form.submit();	
     });
 }
 
@@ -329,18 +242,18 @@ document.querySelectorAll('.slot').forEach(slot => {
 ================================ */
 function filterRoomsByType() {
 
-    const typeId = document.getElementById("roomType").value;
+	const typeId = document.getElementById("roomType").value;
     const roomNoSelect = document.getElementById("roomNo");
 
+    // Clear Room No and Reset Slots
     roomNoSelect.innerHTML = '<option value="">Select Room No</option>';
+    resetSlotStyles();
 
     if (!typeId) return;
 
+    // Fetch Rooms for the selected Type
     fetch(`${contextPath}api/rooms-by-type?typeId=${typeId}`)
-        .then(res => {
-            if (!res.ok) throw new Error();
-            return res.json();
-        })
+        .then(res => res.json())
         .then(rooms => {
             rooms.forEach(room => {
                 const option = document.createElement("option");
@@ -348,38 +261,32 @@ function filterRoomsByType() {
                 option.textContent = room.roomNo;
                 roomNoSelect.appendChild(option);
             });
+
+            // Automatically select the first room if available
+            if (roomNoSelect.options.length > 1) {
+                roomNoSelect.selectedIndex = 1;
+                // Now load the slots for this auto-selected room
+                loadBookedSlots();
+            }
         })
-        .catch(() => {
+        .catch(err => {
+            console.error("Error loading rooms:", err);
             Swal.fire("Error", "Failed to load rooms", "error");
         });
 }
 
+
+
+function resetSlotStyles() {
+    document.querySelectorAll('.slot').forEach(label => {
+        label.classList.remove('booked-active');
+        const cb = label.querySelector('input');
+        if(cb) cb.disabled = false;
+    });
+}
 /* ================================
    LOAD BOOKED SLOTS
 ================================ */
-function loadBookedSlots() {
-
-    const roomId = document.getElementById("roomNo").value;
-    const bookingDate = document.querySelector('input[type="date"]').value;
-
-    if (!roomId || !bookingDate) return;
-
-    /* fetch(`${contextPath}api/booked-slots?roomId=${roomId}&bookingDate=${bookingDate}`)
-        .then(res => res.json())
-        .then(bookedSlots => {
-
-            document.querySelectorAll('.slot').forEach(slot => {
-
-                if (bookedSlots.includes(slot.dataset.time)) {
-                    slot.classList.add('booked');
-                    slot.disabled = true;
-                } else {
-                    slot.classList.remove('booked');
-                    slot.disabled = false;
-                }
-            });
-        }); */
-}
 
 /* ================================
    SAFE EVENT LISTENER
@@ -427,6 +334,80 @@ document.querySelectorAll('.menu-title').forEach(title => {
             if (item !== parent) item.classList.remove('open');
         });
     });
+});
+
+
+
+function loadBookedSlots() {
+    const roomId = document.getElementById("roomNo").value;
+    const bookingDate = document.getElementById("bookingDate").value;
+
+    if (!roomId || !bookingDate) return;
+
+    fetch(`${contextPath}api/booked-slots?roomId=${roomId}&date=${bookingDate}`)
+        .then(res => res.json())
+        .then(bookedSlots => {
+            const slotLabels = document.querySelectorAll('.slot');
+
+            slotLabels.forEach(label => {
+                const checkbox = label.querySelector('input');
+                const timeValue = checkbox.value;
+
+                // Reset state first
+                label.classList.remove('booked-active');
+                checkbox.disabled = false;
+
+                // If slot is in the booked list from Java API
+                if (bookedSlots.includes(timeValue)) {
+                    label.classList.add('booked-active'); // This triggers RED CSS
+                    checkbox.disabled = true;            // Prevent clicking
+                    checkbox.checked = false;            // Uncheck if it was selected
+                }
+            });
+        })
+        .catch(err => console.error("Error checking slots:", err));
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const dateInput = document.getElementById("bookingDate");
+    const roomTypeSelect = document.getElementById("roomType");
+    const roomNoSelect = document.getElementById("roomNo");
+
+   
+    if (!dateInput.value) {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        dateInput.value = `${year}-${month}-${day}`;
+    }
+
+
+    if (roomTypeSelect.value) {
+        const typeId = roomTypeSelect.value;
+
+      
+        roomNoSelect.innerHTML = '<option value="">Select Room No</option>';
+
+        fetch(`${contextPath}api/rooms-by-type?typeId=${typeId}`)
+            .then(res => res.json())
+            .then(rooms => {
+                rooms.forEach(room => {
+                    const option = document.createElement("option");
+                    option.value = room.roomId;
+                    option.textContent = room.roomNo;
+                    roomNoSelect.appendChild(option);
+                });
+
+            
+                if (roomNoSelect.options.length > 1) {
+                    roomNoSelect.selectedIndex = 1;
+                    
+                    loadBookedSlots(); 
+                }
+            })
+            .catch(err => console.error("Error loading default rooms:", err));
+    }
 });
 </script>
 

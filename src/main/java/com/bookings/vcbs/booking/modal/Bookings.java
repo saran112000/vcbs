@@ -45,8 +45,8 @@ public class Bookings {
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 
-    @Column(name = "modified_by", length = 100)
-    private String modified_by;
+    @Column(name = "modified_by")
+    private Long modified_by;
 
     @Column(name = "modified_date")
     private LocalDateTime modifieDate;

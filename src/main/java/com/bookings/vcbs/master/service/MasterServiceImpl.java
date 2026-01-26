@@ -60,7 +60,7 @@ public class MasterServiceImpl  implements MasterService{
                 loginDetails.setEmail(obj[8] != null ? obj[8].toString() : null);
                 loginDetails.setDesigId(obj[9] != null ? Integer.parseInt(obj[9].toString()) : 0);
                 loginDetails.setDesignation(obj[10] != null ? obj[10].toString() : null);
-                loginDetails.setDivision_id(obj[11] != null ? Integer.parseInt(obj[11].toString()) : 0);
+                loginDetails.setDivisionId(obj[11] != null ? Long.parseLong(obj[11].toString()) : 0);
                 loginDetails.setDivision_code(obj[12] != null ? obj[12].toString() : null);
                 loginDetails.setDivision_name(obj[13] != null ? obj[13].toString() : null);
                 loginDetails.setDivision_head_id(obj[14] != null ? Long.parseLong(obj[14].toString()) : 0L);

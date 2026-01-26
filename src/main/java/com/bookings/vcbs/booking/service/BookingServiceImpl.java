@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bookings.vcbs.booking.dto.BookingRequestDTO;
 import com.bookings.vcbs.booking.modal.Bookings;
 import com.bookings.vcbs.booking.modal.BookingsSlotDetails;
+import com.bookings.vcbs.booking.modal.CancelBooking;
 import com.bookings.vcbs.booking.repository.BookingRepository;
 import com.bookings.vcbs.booking.repository.BookingSlotRepository;
 import com.bookings.vcbs.master.dto.EmployeeDTO;
@@ -28,6 +29,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List saveBooking(BookingRequestDTO dto, Long empId) {
 
+        // 1. Save the main Booking Header
         Bookings booking = new Bookings();
         booking.setRoomId(dto.getRoomId());
         booking.setBookingDate(dto.getBookingDate());
@@ -38,22 +40,68 @@ public class BookingServiceImpl implements BookingService {
         booking.setCreatedDate(LocalDateTime.now());
         booking.setStatus("ACTIVE");
 
-        bookingRepository.save(booking);
+     
+        booking = bookingRepository.save(booking);
 
-        BookingsSlotDetails slot = new BookingsSlotDetails();
-        slot.setBookingId(booking.getBookingId());
-        slot.setSlotTime(dto.getSlotTime());
+        
+        if (dto.getSlot() != null && !dto.getSlot().isEmpty()) {
+            for (String slotTimeRange : dto.getSlot()) {
+                BookingsSlotDetails slotDetail = new BookingsSlotDetails();
+                slotDetail.setBookingId(booking.getBookingId());
+                
+             
+                slotDetail.setSlotTime(slotTimeRange); 
+                slotDetail.setIsActive(1);
+                
+                bookingSlotRepository.save(slotDetail);
+            }
+        }
 
-        bookingSlotRepository.save(slot);
-		return null;
-		
+        return dto.getSlot(); 
     }
+    
+    
     @Override
-    public List<EmployeeDTO> getEmployeeList() {
-    	List<EmployeeDTO> list = masterDao.getEmployeeList();
-        return list;
+    public List getFilteredEmployees(String role, Long divisionId) {
+      
+        if ("ROLE_ADMIN".equals(role)) {
+            return bookingRepository.findAllActiveEmployees(); 
+        } else {
+            return bookingRepository.findEmployeesByDivision(divisionId);
+        }
     }
 
+    @Override
+    public void cancelBooking(Long bookingId, Long empId) {
+        
+        Bookings booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+     
+        booking.setStatus("CANCELLED");
+        booking.setModified_by(empId);
+        booking.setModifieDate(LocalDateTime.now());
+        bookingRepository.save(booking);
+        
+        CancelBooking cancelbookin = new CancelBooking();
+        cancelbookin.setCancelledAt(LocalDateTime.now());
+        cancelbookin.setCancelledBy(empId);
+        cancelbookin.setBookingId(bookingId);
+
+       
+        List<BookingsSlotDetails> slots = bookingSlotRepository.findByBookingId(bookingId);
+        
+        if (slots != null) {
+            for (BookingsSlotDetails slot : slots) {
+                slot.setIsActive(0); // Mark as inactive so the room becomes free
+                slot.setCancelleBy(empId);
+                slot.setCancelledDate(LocalDateTime.now());
+                slot.setRemarks("User Cancelled");
+                
+                bookingSlotRepository.save(slot);
+            }
+        }
+    }
 
 }
 

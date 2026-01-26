@@ -70,6 +70,7 @@ public class LoginController {
             ses.setAttribute("empName", loginDetails.getEmpName());
             ses.setAttribute("email", loginDetails.getEmail());
             ses.setAttribute("designation", loginDetails.getDesignation());
+            ses.setAttribute("divisionId", loginDetails.getDivisionId());
             ses.setAttribute("divisionName", loginDetails.getDivision_name());
             ses.setAttribute("labcode", labcode);
 

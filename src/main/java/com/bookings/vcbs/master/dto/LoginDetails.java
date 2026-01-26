@@ -23,7 +23,7 @@ public class LoginDetails {
     private String extensionNo;
     private String email;
     private Integer desigId;
-    private Integer division_id;
+    private Long divisionId;
 
     private String designation;
 

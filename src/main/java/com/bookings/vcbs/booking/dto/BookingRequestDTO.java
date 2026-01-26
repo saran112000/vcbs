@@ -2,6 +2,7 @@ package com.bookings.vcbs.booking.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Data;
 
@@ -12,7 +13,17 @@ public class BookingRequestDTO {
     private LocalDate bookingDate;
     private String guest;
     private String subject;
-    private String slotTime;
+   
     private Long empID;
     private String userName;
+    private List<String> Slot;
+    
+    
+	@Override
+	public String toString() {
+		return "BookingRequestDTO [roomId=" + roomId + ", bookingDate=" + bookingDate + ", guest=" + guest
+				+ ", subject=" + subject + ", empID=" + empID + ", userName=" + userName + ", Slot=" + Slot + "]";
+	}
+    
+    
 }
