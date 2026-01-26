@@ -141,6 +141,7 @@ import jakarta.servlet.http.HttpServletRequest;
 		      
 		      
 		      Object result = bookingService.saveBooking(bookingRequestDTO, empId);
+		        
 		      
 		      if (result != null) {
 		          redirect.addFlashAttribute("successMessage", "Booking saved successfully!");
@@ -179,7 +180,7 @@ import jakarta.servlet.http.HttpServletRequest;
 		          		          cancelDTO.setEmpID(empId);
 		          
 		          
-		          bookingService.cancelBooking(cancelDTO.getBookingId(), empId);
+		          bookingService.cancelBooking(cancelDTO, empId);
 		          
 		          redirect.addFlashAttribute("successMessage", "Booking cancelled successfully!");
 		      } catch (Exception e) {

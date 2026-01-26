@@ -84,12 +84,7 @@
 <!-- MAIN CONTENT -->
  <div class="content">
 
-    <div th:if="${successMessage}" class="alert alert-success">
-        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="alert alert-error">
-        <i class="fas fa-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
-    </div>
+    
 
     <div class="cancel-container">
         <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
@@ -133,7 +128,8 @@
     <input type="hidden" name="bookingId" id="hiddenBookingId">
     <input type="hidden" name="Reason" id="hiddenReason">
 </form>
-
+    <script th:if="${successMessage}">Swal.fire("Success", "[[${successMessage}]]", "success");</script>
+<script th:if="${errorMessage}">Swal.fire("Error", "[[${errorMessage}]]", "error");</script>
 <script th:inline="javascript">
 function confirmCancellation(bookingId) {
     Swal.fire({
@@ -164,6 +160,23 @@ function confirmCancellation(bookingId) {
         }
     });
 }
+
+
+document.querySelectorAll('.menu-title').forEach(title => {
+    title.addEventListener('click', function() {
+        const parent = this.parentElement;
+        
+        // Toggle 'open' class on the clicked menu item
+        parent.classList.toggle('open')	;
+        
+        // Optional: Close other open menus
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item !== parent) {
+                item.classList.remove('open');
+            }
+        });
+    });
+});
 </script>
 </body>
 

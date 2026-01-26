@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bookings.vcbs.booking.dto.BookingRequestDTO;
+import com.bookings.vcbs.booking.dto.CancelBookingDTO;
 import com.bookings.vcbs.booking.modal.Bookings;
 import com.bookings.vcbs.booking.modal.BookingsSlotDetails;
 import com.bookings.vcbs.booking.repository.BookingRepository;
@@ -24,9 +25,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Autowired
     private BookingSlotRepository bookingSlotRepository;
+    
+    @Transactional
 
     @Override
-    public List saveBooking(BookingRequestDTO dto, Long empId) {
+    public long saveBooking(BookingRequestDTO dto, Long empId) {
 
         // 1. Save the main Booking Header
         Bookings booking = new Bookings();
@@ -56,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
             }
         }
 
-        return dto.getSlot(); 
+        return booking.getBookingId(); 
     }
     
     
@@ -71,27 +74,29 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void cancelBooking(Long bookingId, Long empId) {
+    public void cancelBooking(CancelBookingDTO cancelDTO, Long empId) {
         
-        Bookings booking = bookingRepository.findById(bookingId)
+        Bookings booking = bookingRepository.findById(cancelDTO.getBookingId())
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
      
         booking.setStatus("CANCELLED");
-        booking.setModified_by(empId);
+        booking.setModified_by(cancelDTO.getUserName());
         booking.setModifieDate(LocalDateTime.now());
         bookingRepository.save(booking);
         
 
        
-        List<BookingsSlotDetails> slots = bookingSlotRepository.findByBookingId(bookingId);
+        List<BookingsSlotDetails> slots = bookingSlotRepository.findByBookingId(cancelDTO.getBookingId());
         
         if (slots != null) {
             for (BookingsSlotDetails slot : slots) {
-                slot.setIsActive(0); // Mark as inactive so the room becomes free
+                slot.setIsActive(0); 
                 slot.setCancelleBy(empId);
                 slot.setCancelledDate(LocalDateTime.now());
-                slot.setRemarks("User Cancelled");
+                slot.setRemarks(cancelDTO.getReason());
+                slot.setModifieDate(LocalDateTime.now());
+                slot.setModifieBy(cancelDTO.getUserName());
                 
                 bookingSlotRepository.save(slot);
             }

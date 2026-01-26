@@ -118,7 +118,7 @@
    
 </select>
    
-</select>
+
             </div>
 
             <div class="input-group">
@@ -187,6 +187,8 @@
 
 
     </div> 
+    <script th:if="${successMessage}">Swal.fire("Success", "[[${successMessage}]]", "success");</script>
+<script th:if="${errorMessage}">Swal.fire("Error", "[[${errorMessage}]]", "error");</script>
 </body>
 <script>
 /* ================================
@@ -198,29 +200,58 @@ let selectedSlotTime = null;
 
 
 function submitBookingForm() {
-	const roomId = document.getElementById("roomNo").value;
-    const bookingDate = document.querySelector('input[type="date"]').value;
-    const guest = document.querySelector('input[placeholder="Enter guest name"]').value;
-    const subject = document.querySelector('input[placeholder="Enter meeting subject"]').value;
-    const slotTime = selectedSlotTime
-	const form = document.getElementById("bookingForm");
+    // 1. Get references to form elements
+    const roomNo = document.getElementById("roomNo").value;
+    const bookingDate = document.getElementById("bookingDate").value;
+    const employeeId = document.getElementById("employeeId").value;
+    const subject = document.getElementById("subject").value.trim();
+    
+    // 2. Validate Time Slots (Check if at least one checkbox is checked)
+    const selectedSlots = document.querySelectorAll('input[name="Slot"]:checked');
+    
+    // 3. Validation Logic
+    let errorMessage = "";
 
-   /*  if (!empNo || !empName || desigId === "0") {
-        Swal.fire("Validation Error", "Please fill required fields (No, Name, Designation)", "warning"); 
-        return;
-    } */
+    if (!roomNo) {
+        errorMessage = "Please select a Room Number.";
+    } else if (!bookingDate) {
+        errorMessage = "Please select a Booking Date.";
+    } else if (!employeeId) {
+        errorMessage = "Please select an Employee.";
+    } else if (guest === "") {
+        errorMessage = "Please enter the Guest name.";
+    } else if (subject === "") {
+        errorMessage = "Please enter a Meeting Subject.";
+    } else if (selectedSlots.length === 0) {
+        errorMessage = "Please select at least one Time Slot.";
+    }
 
+    // 4. Show error if validation fails
+    if (errorMessage) {
+        Swal.fire({
+            title: "Validation Error",
+            text: errorMessage,
+            icon: "warning",
+            confirmButtonColor: "#3085d6"
+        });
+        return; // Stop the function here
+    }
+
+    // 5. If everything is valid, ask for confirmation
     Swal.fire({
-        title: "Confirm Save",
-        text: `Are you sure you want to book the slot this employee?`, 
+        title: "Confirm Booking",
+        text: `Are you sure you want to book ${selectedSlots.length} slot(s) for this meeting?`,
         icon: "question",
         showCancelButton: true,
-        confirmButtonText: "Yes, Save"
+        confirmButtonColor: "#28a745",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Book it!"
     }).then((result) => {
-        if (result.isConfirmed) form.submit();	
+        if (result.isConfirmed) {
+            document.getElementById("bookingForm").submit();
+        }
     });
 }
-
 
 /* ================================
    SLOT SELECTION
