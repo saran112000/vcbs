@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bookings.vcbs.booking.dto.BookingRequestDTO;
 import com.bookings.vcbs.booking.modal.Bookings;
 import com.bookings.vcbs.booking.modal.BookingsSlotDetails;
-import com.bookings.vcbs.booking.modal.CancelBooking;
 import com.bookings.vcbs.booking.repository.BookingRepository;
 import com.bookings.vcbs.booking.repository.BookingSlotRepository;
 import com.bookings.vcbs.master.dto.EmployeeDTO;
@@ -83,10 +82,6 @@ public class BookingServiceImpl implements BookingService {
         booking.setModifieDate(LocalDateTime.now());
         bookingRepository.save(booking);
         
-        CancelBooking cancelbookin = new CancelBooking();
-        cancelbookin.setCancelledAt(LocalDateTime.now());
-        cancelbookin.setCancelledBy(empId);
-        cancelbookin.setBookingId(bookingId);
 
        
         List<BookingsSlotDetails> slots = bookingSlotRepository.findByBookingId(bookingId);
