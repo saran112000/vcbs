@@ -90,30 +90,31 @@
     <div class="page-header-report">
         <div>Booking Report</div>
     </div>
-		    <form id="bookingReportForm" th:action="@{/booking-report}" method="POST" target="_blank">
-		    <input type="hidden" name="actionType" id="actionType">
-		
-		    <div class="row align-items-end" style="justify-content: end; margin-top:-45px; margin-bottom: 10px;">
-		        <div class="col-md-3">
-		            <label for="fromDate" class="form-label fw-bold" style="color:white;">From Date</label>
-		            <input type="text" id="fromDate" name="fromDate" class="form-control datepicker-input" placeholder="Select start date" readonly>
-		        </div>
-		        <div class="col-md-3">
-		            <label for="toDate" class="form-label fw-bold" style="color:white;">To Date</label>
-		            <input type="text" id="toDate" name="toDate" class="form-control datepicker-input" placeholder="Select end date" readonly>
-		        </div>
-		        
-		        <div class="col-md-auto d-flex gap-2">
-		            <button type="button" class="btn btn-success" style="display: flex; align-items: center; gap: 8px;" onclick="openAction('E')">
-		                <i class="fas fa-file-excel"></i> Excel
-		            </button>
-		            
-		            <button type="button" class="btn btn-danger" style="display: flex; align-items: center; gap: 8px;" onclick="openAction('P')">
-		                <i class="fas fa-file-pdf"></i> PDF
-		            </button>
-		        </div>
-		    </div>
-		</form>
+		   <form id="bookingReportForm" th:action="@{/booking-report}" method="POST">
+    <input type="hidden" name="actionType" id="actionType">
+
+    <div class="row align-items-end" style="justify-content: end; margin-top:-45px; margin-bottom: 10px;">
+        <div class="col-md-3">
+            <label for="fromDate" class="form-label fw-bold" style="color:white;">From Date</label>
+            <input type="text" id="fromDate" name="fromDate" th:value="${fromDate}" 
+                   class="form-control datepicker-input" placeholder="Select start date" readonly>
+        </div>
+        <div class="col-md-3">
+            <label for="toDate" class="form-label fw-bold" style="color:white;">To Date</label>
+            <input type="text" id="toDate" name="toDate" th:value="${toDate}" 
+                   class="form-control datepicker-input" placeholder="Select end date" readonly>
+        </div>
+        
+        <div class="col-md-auto d-flex gap-2">
+            <button type="button" class="btn btn-success" onclick="openAction('E')">
+                <i class="fas fa-file-excel"></i> Excel
+            </button>
+            <button type="button" class="btn btn-danger" onclick="openAction('P')">
+                <i class="fas fa-file-pdf"></i> PDF
+            </button>
+        </div>
+    </div>
+</form>
     <div class="glass-effect">
     
 			   <table class="table table-bordered" id="booked-report">
@@ -131,54 +132,49 @@
 				    <tbody id="bookingTableBody">
 				        <tr th:each="booking, iterStat : ${bookingReport}">
 				            <td style="text-align:center;" th:text="${iterStat.count + '.'}">1.</td>
-				
 				            <td style="text-align:center;" th:text="${#temporals.format(booking.bookingDate, 'dd-MM-yyyy')}">-</td>
-				
 				            <td>
 				                <b th:text="${booking.roomNo}">-</b><br/>
 				                <small class="text-muted" th:text="${booking.roomType}">-</small>
 				            </td>
-				
 				            <td>
 				                <span th:text="${booking.guestName}">-</span><br/>
 				                <small th:text="${booking.subject}">-</small>
 				            </td>
-				            
 				            <td>
 				                <span th:text="${booking.slotBookedBy != null ? booking.slotBookedBy : '-'}"></span>
 				                <span th:if="${booking.slotBookedByDesignation != null}" 
 				                      class="badge bg-light text-dark border"
 				                      th:text="${booking.slotBookedByDesignation}"></span>
 				            </td>
-				
 				            <td>
 				                <span class="badge bg-info text-dark" th:text="${booking.bookedSlots}">-</span>
 				            </td>
-				
-				           
 				        </tr>
+				        
 				        <tr th:if="${#lists.isEmpty(bookingReport)}">
-				            <td colspan="7" class="text-center">No active bookings found.</td>
+				            <td colspan="6" class="text-center">No active bookings found.</td>
 				        </tr>
 				    </tbody>
 				</table>
-				
 			</div>
 			    
 			</div>
 		
 		    </div> 
 		    
+		    <script th:if="${bookingReport != null and !bookingReport.isEmpty()}">
+			    $(document).ready(function() {
+			        $('#booked-report').DataTable({
+			            "language": {
+			                "emptyTable": "No Bookings found in the system"
+			            }
+			        });
+			    });
+			</script>
+		    
 		    	<script>
 	
-	$(document).ready(function() {
-	    $('#booked-report').DataTable({
-	        "language": {
-	            "emptyTable": "No Bookings found in the system"
-	        }
-	    });
-	});
-
 
 document.querySelectorAll('.menu-title').forEach(title => {
     title.addEventListener('click', function() {
@@ -203,19 +199,17 @@ document.addEventListener("DOMContentLoaded", function() {
     const fromInput = document.querySelector('#fromDate');
     const toInput = document.querySelector('#toDate');
 
-    // 1. Calculate Dates
-    const today = new Date();
-    // First day of current month: Year, Current Month, Day 1
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    // 2. Initialize Datepickers
+    // 1. Initialize Datepickers
+    // We don't call setDate() manually here anymore. 
+    // The library will automatically detect the value attribute.
     const fromPicker = new Datepicker(fromInput, {
         autohide: true,
         buttonClass: 'btn',
         format: 'dd-mm-yyyy',
         todayBtn: true,
         clearBtn: true,
-        orientation: 'bottom left'
+        orientation: 'bottom left',
+        container: 'body' // Keeps picker on top of glass-effect
     });
 
     const toPicker = new Datepicker(toInput, {
@@ -224,38 +218,62 @@ document.addEventListener("DOMContentLoaded", function() {
         format: 'dd-mm-yyyy',
         todayBtn: true,
         clearBtn: true,
-        orientation: 'bottom left'
+        orientation: 'bottom left',
+        container: 'body'
     });
 
-    // 3. Set Default Values
-    fromPicker.setDate(firstDayOfMonth);
-    toPicker.setDate(today);
+    // 2. Refresh the picker to recognize the Thymeleaf-provided value
+    // This ensures the internal calendar highlight matches the text box value
+    if (fromInput.value) {
+        fromPicker.setDate(fromInput.value);
+    }
+    if (toInput.value) {
+        toPicker.setDate(toInput.value);
+    }
 });
-
 </script>
+
 
 <script type="text/javascript">
 
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById('bookingReportForm');
+    const fromInput = document.getElementById('fromDate');
+    const toInput = document.getElementById('toDate');
+
+    // Function for automatic table filtering (GET request)
+    function autoFilter() {
+        if (fromInput.value && toInput.value) {
+            form.method = "GET";
+            form.action = contextPath + "reports/bookings"; // Your @GetMapping URL
+            form.target = "_self"; // Refresh current page
+            form.submit();
+        }
+    }
+
+    // Attach listeners to datepickers
+    fromInput.addEventListener('changeDate', autoFilter);
+    toInput.addEventListener('changeDate', autoFilter);
+});
+
+// Function for Exporting (POST request)
 function openAction(type) {
+    const form = document.getElementById('bookingReportForm');
     const fromDate = document.getElementById('fromDate').value;
     const toDate = document.getElementById('toDate').value;
 
     if (!fromDate || !toDate) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Missing Dates',
-            text: 'Please select both From and To dates.'
-        });
+        Swal.fire({ icon: 'warning', title: 'Missing Dates', text: 'Please select both dates.' });
         return;
     }
 
-    // Set the hidden input value
+    // Configure form for Export
     document.getElementById('actionType').value = type;
-
-    // Submit the form
-    document.getElementById('bookingReportForm').submit();
+    form.method = "POST";
+    form.action = contextPath + "booking-report"; // Your @PostMapping URL
+    form.target = "_blank"; // Open in new tab for PDF preview
+    form.submit();
 }
-
 
 </script>
     

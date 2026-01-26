@@ -1,5 +1,6 @@
 package com.bookings.vcbs.report.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,8 +27,8 @@ public interface BookingReportRepository extends JpaRepository<Bookings, Long> {
 			    SELECT s.booking_id, GROUP_CONCAT(s.slot_time) AS bookedSlots
 			    FROM bookings_slot_details s WHERE s.is_active = 1 GROUP BY s.booking_id
 			) s ON s.booking_id = b.booking_id
-			WHERE b.status = :status
+			WHERE b.status = :status AND (b.booking_date BETWEEN :fromDate AND :toDate)
 		""", nativeQuery = true)
-		List<BookingDetailProjection> getRoomBookedList(@Param("status") String status);
+		List<BookingDetailProjection> getRoomBookedList(@Param("status") String status, LocalDate fromDate, LocalDate toDate);
 
 }

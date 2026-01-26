@@ -14,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
 
 @Service
 public class ReportServiceImpl implements ReportService{
@@ -25,8 +26,11 @@ public class ReportServiceImpl implements ReportService{
     private TemplateEngine templateEngine;
 	
 	@Override
-	public List<BookingDetailProjection> getRoomBookedList(String status) {
-		return bookingReportRepository.getRoomBookedList(status);
+	public List<BookingDetailProjection> getRoomBookedList(String status, LocalDate fromDate, LocalDate todate) {
+		System.out.println("status****"+status);
+		System.out.println("fromDate****"+fromDate);
+		System.out.println("todate****"+todate);
+		return bookingReportRepository.getRoomBookedList(status, fromDate, todate);
 	}
 	
     

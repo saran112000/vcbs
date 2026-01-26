@@ -1,6 +1,8 @@
 package com.bookings.vcbs.report.controller;
 
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context; // Use Thymeleaf Context
-import org.xhtmlrenderer.pdf.ITextRenderer; // This uses your Flying Saucer dependency
-
+import org.xhtmlrenderer.pdf.ITextRenderer;
+import com.bookings.vcbs.config.WebMvcConfigruation;
 import com.bookings.vcbs.master.dto.MainModuleDTO;
 import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.service.MasterService;
@@ -29,6 +31,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @Controller
 public class ReportController {
 
+    private final WebMvcConfigruation webMvcConfigruation;
+
     @Autowired
     private TemplateEngine templateEngine;
     
@@ -37,20 +41,35 @@ public class ReportController {
     
     @Autowired
     private MasterService masterService;
+
+    ReportController(WebMvcConfigruation webMvcConfigruation) {
+        this.webMvcConfigruation = webMvcConfigruation;
+    }
     
     @GetMapping("/reports/bookings")
-    public String bookingReportList(Model model) {
-    	
-    	List<BookingDetailProjection> bookingReport = reportService.getRoomBookedList("ACTIVE");
-    	bookingReport.forEach(reo->System.out.println("-----"+reo));
-		model.addAttribute("bookingReport", bookingReport != null ? bookingReport : new ArrayList<>());
-		
-		List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
-		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
-		
-		List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
-		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
-		
+    public String bookingReportList(
+            @RequestParam(value = "fromDate", required = false) String fromDate, 
+            @RequestParam(value = "toDate", required = false) String toDate, 
+            Model model) {
+        
+    	DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        if (fromDate == null || toDate == null) {
+            LocalDate now = LocalDate.now();
+            fromDate = now.withDayOfMonth(1).format(inputFormatter);
+            toDate = now.format(inputFormatter);
+        }
+        LocalDate startDate = LocalDate.parse(fromDate, inputFormatter);
+        LocalDate endDate = LocalDate.parse(toDate, inputFormatter);
+        
+        List<BookingDetailProjection> bookingReport = reportService.getRoomBookedList("ACTIVE", startDate, endDate);
+        bookingReport.forEach(row->System.out.println("-----------"+row));
+        model.addAttribute("bookingReport", bookingReport != null ? bookingReport : new ArrayList<>());
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        
+        model.addAttribute("mainModuleList", masterService.getMainModuleList());
+        model.addAttribute("subModuleList", masterService.getSubModuleList());
+        
         return "reports/bookingReportList";
     }
 
@@ -60,8 +79,11 @@ public class ReportController {
                              @RequestParam("actionType") String actionType, 
                              HttpServletResponse response) throws Exception {
         
-        // Fetch data using your existing service
-        List<BookingDetailProjection> bookingReport = reportService.getRoomBookedList("ACTIVE");
+    	DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    	LocalDate startDate = LocalDate.parse(fromDate, inputFormatter);
+        LocalDate endDate = LocalDate.parse(toDate, inputFormatter);
+        
+        List<BookingDetailProjection> bookingReport = reportService.getRoomBookedList("ACTIVE", startDate, endDate);
         
         // Optional: Filter the list by fromDate/toDate here if your service doesn't do it via SQL
         
