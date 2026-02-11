@@ -9,15 +9,18 @@ public class SubModuleDTO {
     private String moduleDetailsName;
     private String moduleDetailsUrl;
     private Integer isActive;
+    private Integer serialNo;
 
     public SubModuleDTO() {}
-
-    public SubModuleDTO(Long moduleDetailsId, Long moduleId, String moduleDetailsName, String moduleDetailsUrl, Integer isActive) {
+    
+    public SubModuleDTO(Long moduleDetailsId, Long moduleId, String moduleDetailsName, 
+                            String moduleDetailsUrl, Integer isActive, Integer serialNo) {
         this.moduleDetailsId = moduleDetailsId;
         this.moduleId = moduleId;
         this.moduleDetailsName = moduleDetailsName;
         this.moduleDetailsUrl = moduleDetailsUrl;
         this.isActive = isActive;
+        this.serialNo = serialNo; // Add this field if it's missing
     }
 
 }

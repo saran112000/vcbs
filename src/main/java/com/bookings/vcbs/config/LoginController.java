@@ -65,6 +65,7 @@ public class LoginController {
             ses.setAttribute("loginId", loginDetails.getLoginId());
             ses.setAttribute("userName", loginDetails.getUserName());
             ses.setAttribute("roleName", loginDetails.getRoleName());
+            ses.setAttribute("roleId", loginDetails.getRoleId());
             ses.setAttribute("empId", loginDetails.getEmpId());
             ses.setAttribute("empNo", loginDetails.getEmpNo());
             ses.setAttribute("empName", loginDetails.getEmpName());
@@ -76,10 +77,10 @@ public class LoginController {
 
             model.addAttribute("user", loginDetails);
             
-            List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+    		List<MainModuleDTO> mainModuleList = masterService.getMainModuleList(loginDetails.getRoleName());
     		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
     		
-    		List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+    		List<SubModuleDTO> subModuleList = masterService.getSubModuleList(loginDetails.getRoleName());
     		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
         }
 

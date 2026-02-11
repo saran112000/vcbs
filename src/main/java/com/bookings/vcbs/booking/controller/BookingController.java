@@ -87,10 +87,12 @@ import jakarta.servlet.http.HttpServletRequest;
 
 		     
 		     
-				List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+		     	String roleName = (String)ses.getAttribute("roleName");
+				
+				List<MainModuleDTO> mainModuleList = masterService.getMainModuleList(roleName);
 				model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
 				
-				List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+				List<SubModuleDTO> subModuleList = masterService.getSubModuleList(roleName);
 				model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
 				
 				
@@ -161,11 +163,15 @@ import jakarta.servlet.http.HttpServletRequest;
 		      CancelBookingDTO cancelvale = new CancelBookingDTO();
 		      
 		      model.addAttribute("myBookings", roomTypeRepository.findMyActiveBookings(empId));
-		      List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+		      
+		      String roleName = (String)ses.getAttribute("roleName");
+				
+				List<MainModuleDTO> mainModuleList = masterService.getMainModuleList(roleName);
 				model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
 				
-				List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+				List<SubModuleDTO> subModuleList = masterService.getSubModuleList(roleName);
 				model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
+				
 		      return "bookings/cancelbooking";
 		  }
 

@@ -5,18 +5,24 @@ import com.bookings.vcbs.master.dto.EmployeeDesignationDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleAccessDTO;
 import com.bookings.vcbs.master.dto.RoleSecurityDTO;
 import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.modal.Employee;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
 import com.bookings.vcbs.master.modal.Login;
+import com.bookings.vcbs.master.modal.RoleSecurityAccess;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -259,33 +265,134 @@ public class MasterDaoImpl implements MasterDao {
 	}
 
 	@Override
-    public List<MainModuleDTO> getMainModuleList() {
-        // Use fully qualified path for the DTO in the query
-        String hql = """
-            SELECT new com.bookings.vcbs.master.dto.MainModuleDTO(
-                m.moduleId, m.moduleName, m.moduleIcon, m.isActive
-            )
-            FROM Module m 
-            WHERE m.isActive = 1 
-            ORDER BY m.serialNo ASC
-        """;
+	public List<MainModuleDTO> getMainModuleList(String roleName) {
+	    String hql = """
+	        SELECT DISTINCT new com.bookings.vcbs.master.dto.MainModuleDTO(
+	            m.moduleId, m.moduleName, m.moduleIcon, m.isActive
+	        )
+	        FROM Module m
+	        INNER JOIN ModuleDetails md ON md.moduleId = m.moduleId
+	        INNER JOIN RoleSecurityAccess ra ON ra.moduleDetailsId = md.moduleDetailsId
+	        INNER JOIN RoleSecurity rs ON rs.roleId = ra.roleId
+	        WHERE m.isActive = 1 
+	        AND rs.roleName = :roleName
+	    """;
 
-        return entityManager.createQuery(hql, MainModuleDTO.class).getResultList();
+	    return entityManager.createQuery(hql, MainModuleDTO.class)
+	            .setParameter("roleName", roleName)
+	            .getResultList();
+	}
+
+	@Override
+	public List<SubModuleDTO> getSubModuleList(String roleName) {
+	    String hql = """
+	        SELECT DISTINCT new com.bookings.vcbs.master.dto.SubModuleDTO(
+	            md.moduleDetailsId, 
+	            md.moduleId, 
+	            md.moduleDetailsName, 
+	            md.moduleDetailsUrl, 
+	            md.isActive,
+	            md.serialNo
+	        )
+	        FROM ModuleDetails md
+	        INNER JOIN Module m ON m.moduleId = md.moduleId
+	        INNER JOIN RoleSecurityAccess ra ON ra.moduleDetailsId = md.moduleDetailsId
+	        INNER JOIN RoleSecurity rs ON rs.roleId = ra.roleId
+	        WHERE m.isActive = 1 AND md.isActive = 1 AND ra.isActive = 1
+	        AND rs.roleName = :roleName
+	        ORDER BY md.serialNo ASC
+	    """;
+
+	    return entityManager.createQuery(hql, SubModuleDTO.class)
+	            .setParameter("roleName", roleName)
+	            .getResultList();
+	}
+	
+	@Override
+    @Transactional
+    public void updateRoleAccess(Long roleId, Long moduleDetailsId, int isActive, String userName) {
+        // Check if record exists
+        String checkSql = "SELECT role_security_access_id FROM role_security_access WHERE role_id = :roleId AND module_details_id = :detId";
+        Query checkQuery = entityManager.createNativeQuery(checkSql);
+        checkQuery.setParameter("roleId", roleId);
+        checkQuery.setParameter("detId", moduleDetailsId);
+        
+        List<Object> result = checkQuery.getResultList();
+        
+        if (!result.isEmpty()) {
+            // Update existing record
+            Long accessId = ((Number) result.get(0)).longValue();
+            String updateSql = """
+                UPDATE role_security_access 
+                SET is_active = :isActive, 
+                    modified_by = :user, 
+                    modified_date = NOW() 
+                WHERE role_security_access_id = :accessId
+            """;
+            Query updateQuery = entityManager.createNativeQuery(updateSql);
+            updateQuery.setParameter("isActive", isActive);
+            updateQuery.setParameter("user", userName);
+            updateQuery.setParameter("accessId", accessId);
+            updateQuery.executeUpdate();
+        } else {
+            // Insert new record
+            if (isActive == 1) { // Only insert if we are turning it ON
+                String insertSql = """
+                    INSERT INTO role_security_access 
+                    (role_id, module_details_id, is_active, created_by, created_date) 
+                    VALUES (:roleId, :detId, 1, :user, NOW())
+                """;
+                Query insertQuery = entityManager.createNativeQuery(insertSql);
+                insertQuery.setParameter("roleId", roleId);
+                insertQuery.setParameter("detId", moduleDetailsId);
+                insertQuery.setParameter("user", userName);
+                insertQuery.executeUpdate();
+            }
+        }
     }
 
-    @Override
-    public List<SubModuleDTO> getSubModuleList() {
-        // Ensure constructor order matches: ID, ModuleID, Name, URL, Active
-        String hql = """
-            SELECT new com.bookings.vcbs.master.dto.SubModuleDTO(
-                s.moduleDetailsId, s.moduleId, s.moduleDetailsName, s.moduleDetailsUrl, s.isActive
-            )
-            FROM ModuleDetails s 
-            WHERE s.isActive = 1 
-            ORDER BY s.serialNo ASC
-        """;
+	@Override
+	public List<RoleAccessDTO> getRoleAccessList(Long roleId, Long moduleId) {
+	    // We use LEFT JOIN so that sub-modules without records in RoleSecurityAccess still show up
+	    String hql = "SELECT new com.bookings.vcbs.master.dto.RoleAccessDTO(" +
+	                 "md.moduleDetailsId, " +
+	                 "md.moduleDetailsName, " +
+	                 "(CASE WHEN ra.isActive = 1 THEN true ELSE false END), " +
+	                 "ra.isDrona, " +
+	                 "ra.isInternet) " +
+	                 "FROM ModuleDetails md " +
+	                 "LEFT JOIN RoleSecurityAccess ra ON md.moduleDetailsId = ra.moduleDetailsId " +
+	                 "AND ra.roleId = :roleId " +
+	                 "WHERE md.moduleId = :moduleId " +
+	                 "ORDER BY md.moduleDetailsId ASC";
 
-        return entityManager.createQuery(hql, SubModuleDTO.class).getResultList();
-    }
+	    return entityManager.createQuery(hql, RoleAccessDTO.class)
+	            .setParameter("roleId", roleId)
+	            .setParameter("moduleId", moduleId)
+	            .getResultList();
+	}
 
+	@Override
+	public RoleSecurityAccess findByRoleIdAndModuleDetailsId(Long roleId, Long moduleDetailsId) {
+	    try {
+	        String hql = "SELECT r FROM RoleSecurityAccess r WHERE r.roleId = :roleId AND r.moduleDetailsId = :moduleDetailsId";
+	        return entityManager.createQuery(hql, RoleSecurityAccess.class)
+	                .setParameter("roleId", roleId)
+	                .setParameter("moduleDetailsId", moduleDetailsId)
+	                .getSingleResult();
+	    } catch (NoResultException e) {
+	        return null; 
+	    }
+	}
+
+	@Override
+	public Long saveRoomTypes(RoleSecurityAccess entity) {
+	    if (entity.getRoleSecurityAccessId() == null) {
+	        entityManager.persist(entity);
+	    } else {
+	        entityManager.merge(entity);
+	    }
+	    return 1L; // Return success
+	}
+	
 }

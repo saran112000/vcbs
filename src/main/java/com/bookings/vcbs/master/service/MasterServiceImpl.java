@@ -7,11 +7,13 @@ import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.LoginDetails;
 import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleAccessDTO;
 import com.bookings.vcbs.master.dto.RoleSecurityDTO;
 import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.modal.Employee;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
 import com.bookings.vcbs.master.modal.Login;
+import com.bookings.vcbs.master.modal.RoleSecurityAccess;
 import com.bookings.vcbs.master.projection.LoginProjection;
 import com.bookings.vcbs.master.repository.LoginRepository;
 import com.bookings.vcbs.utils.DtoEntityMapper;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MasterServiceImpl  implements MasterService{
@@ -242,13 +245,54 @@ public class MasterServiceImpl  implements MasterService{
 	}
 
 	@Override
-	public List<MainModuleDTO> getMainModuleList() {
-		return masterDao.getMainModuleList();
+	public List<MainModuleDTO> getMainModuleList(String roleName) {
+		return masterDao.getMainModuleList(roleName);
 	}
 
 	@Override
-	public List<SubModuleDTO> getSubModuleList() {
-		return masterDao.getSubModuleList();
+	public List<SubModuleDTO> getSubModuleList(String roleName) {
+		return masterDao.getSubModuleList(roleName);
 	}
+
+	@Override
+	public List<RoleAccessDTO> getRoleAccessList(Long roleId, Long moduleId) {
+		return masterDao.getRoleAccessList(roleId, moduleId);
+	}
+
+	@Override
+	public void updateRoleAccess(Long roleId, Long moduleDetailsId, int isActive, String userName) {
+		masterDao.updateRoleAccess(roleId, moduleDetailsId, isActive, userName);
+		
+	}
+	
+	@Transactional
+    public Long saveRoomTypes(RoleAccessDTO dto, String username) {
+		RoleSecurityAccess entity = masterDao.findByRoleIdAndModuleDetailsId(dto.getRoleId(), dto.getModuleDetailsId());
+        
+        if (entity == null) {
+        	 // If no record exists yet, create a new one
+            entity = new RoleSecurityAccess();
+            entity.setRoleId(dto.getRoleId());
+            entity.setModuleDetailsId(dto.getModuleDetailsId());
+            entity.setIsActive(1); // Default to active if room type is assigned
+            entity.setCreatedDate(LocalDateTime.now());
+            entity.setCreatedBy(username);
+        } else {
+            // If no record exists yet, create a new one
+            entity.setRoleId(dto.getRoleId());
+            entity.setModuleDetailsId(dto.getModuleDetailsId());
+            entity.setIsActive(1); // Default to active if room type is assigned
+            entity.setCreatedDate(LocalDateTime.now());
+            entity.setCreatedBy(username);
+        }
+
+        // Logic to parse the comma-separated string from frontend
+        String selectedTypes = dto.getRoomType() != null ? dto.getRoomType() : "";
+        entity.setIsDrona(selectedTypes.contains("Drona") ? "Y" : "N");
+        entity.setIsInternet(selectedTypes.contains("Internet") ? "Y" : "N");
+        
+        Long status = masterDao.saveRoomTypes(entity);
+        return status;
+    }
     
 }
