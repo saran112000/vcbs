@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 10px; color: #333; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #dc3545; padding-bottom: 10px; }
+        h2 { margin: 0; color: #b02a37; text-transform: uppercase; }
+        p { margin: 5px 0; font-size: 12px; }
+        
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { background-color: #212529; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #32383e; padding: 8px 4px; }
+        td { border: 1px solid #dee2e6; padding: 6px 4px; vertical-align: top; word-wrap: break-word; }
+        
+        .text-center { text-align: center; }
+        .text-muted { color: #6c757d; font-size: 8.5px; }
+        .bold { font-weight: bold; }
+        .badge-info { 
+            background-color: #e1f5fe; 
+            color: #01579b; 
+            padding: 2px 4px; 
+            border-radius: 3px; 
+            font-size: 8.5px;
+            display: block;
+            margin-top: 2px;
+        }
+        .cancelled-text { color: #b02a37; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Cancelled Booking Report</h2>
+        <p>Period: <span th:text="${fromDate}">-</span> to <span th:text="${toDate}">-</span></p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 4%;">Sl</th>
+                <th style="width: 10%;">Date</th>
+                <th style="width: 14%;">Room Info</th>
+                <th style="width: 20%;">Guest &amp; Subject</th>
+                <th style="width: 15%;">Cancelled By</th>
+                <th style="width: 25%;">Remarks</th>
+                <th style="width: 12%;">Slots</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="booking, iterStat : ${bookingReport}">
+                <td class="text-center" th:text="${iterStat.count}">1</td>
+                
+                <td class="text-center" th:text="${#temporals.format(booking.bookingDate, 'dd-MM-yyyy')}">01-01-2026</td>
+
+                <td>
+                    <div class="bold" th:text="${booking.roomNo}">Room 101</div>
+                    <div class="text-muted" th:text="${booking.roomType}">Meeting Room</div>
+                </td>
+
+                <td>
+                    <div class="bold" th:text="${booking.guestName}">Guest Name</div>
+                    <div class="text-muted" th:text="${booking.subject}">Subject</div>
+                </td>
+                
+                <td>
+                    <div class="cancelled-text" th:text="${booking.cancelledBy != null ? booking.cancelledBy : 'N/A'}">Employee Name</div>
+                     <span th:if="${booking.cancelledByDesignation != null}" 
+                          class="badge"
+                          th:text="${booking.cancelledByDesignation}">Manager</span>
+                </td>
+
+                <td>
+                    <div th:text="${booking.remarks != null ? booking.remarks : '-'}">Reason for cancellation...</div>
+                </td>
+
+                <td class="text-center">
+                    <span class="badge-info" th:text="${booking.bookedSlots}">09:00, 10:00</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(bookingReport)}">
+                <td colspan="7" class="text-center">No cancelled records found for the selected period.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

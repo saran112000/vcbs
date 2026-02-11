@@ -97,16 +97,16 @@
                     <th>Date</th>
                     <th>Room Number</th>
                     <th>Meeting Subject</th>
-                    <th>Status</th>
+                 
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="booking : ${myBookings}">
-                    <td th:text="${booking.bookingDate}">2026-01-26</td>
+        <td th:text="${#dates.format(booking.bookingDate, 'dd-MM-yyyy')}">26-01-2026</td>
                     <td th:text="${booking.roomNo}">Room 101</td>
                     <td th:text="${booking.subject}">Project Review</td>
-                    <td><span class="status-active" th:text="${booking.status}">ACTIVE</span></td>
+                   
                     <td>
                         <button class="btn-cancel-action" 
                                 th:onclick="'confirmCancellation(' + ${booking.bookingId} + ')'">

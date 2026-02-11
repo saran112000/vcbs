@@ -71,6 +71,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 		     String role = (String) ses.getAttribute("roleName");
 		     Long divisionId = (Long) ses.getAttribute("divisionId");
+		     
 		     List<EmployeeProjection> employees = bookingService.getFilteredEmployees(role, divisionId);
 		     model.addAttribute("employees", employees);
 
@@ -157,10 +158,15 @@ import jakarta.servlet.http.HttpServletRequest;
 		  @RequestMapping("/cancelbooking")
 		  public String showCancelPage(Model model, HttpSession ses) {
 		      Long empId = (Long) ses.getAttribute("empId");
+			     String role = (String) ses.getAttribute("roleName");
+			     Long divisionId = (Long) ses.getAttribute("divisionId");
 		      
 		      CancelBookingDTO cancelvale = new CancelBookingDTO();
 		      
-		      model.addAttribute("myBookings", roomTypeRepository.findMyActiveBookings(empId));
+		      
+		      model.addAttribute("myBookings", roomTypeRepository.findMyActiveBookings(empId, role));
+		      
+		      
 		      List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
 				model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
 				

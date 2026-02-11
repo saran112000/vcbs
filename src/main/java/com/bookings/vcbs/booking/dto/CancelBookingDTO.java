@@ -15,6 +15,7 @@ public class CancelBookingDTO {
     private String guest;
     private String subject;
     private Long BookingId;
+    
    
     private Long empID;
     private String userName;

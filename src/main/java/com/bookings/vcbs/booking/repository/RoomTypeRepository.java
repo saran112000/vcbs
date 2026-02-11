@@ -28,9 +28,9 @@ public interface RoomTypeRepository extends JpaRepository<RoomType, Long> {
 	
 	@Query(value = "SELECT b.booking_id as bookingId, b.booking_date as bookingDate, " +
 	               "b.subject as subject, r.room_no as roomNo, b.status as status " +
-	               "FROM bookings b " +
+	               "FROM bookings b " +  
 	               "JOIN room_details r ON b.room_id = r.room_id " +
-	               "WHERE b.booking_by = :empId AND b.status = 'ACTIVE'", 
+	               "WHERE (:Role = 'ROLE_ADMIN' OR b.booking_by = :empId) AND b.status = 'ACTIVE'", 
 	       nativeQuery = true)
-	List<Map<String, Object>> findMyActiveBookings(@Param("empId") Long empId);
+	List<Map<String, Object>> findMyActiveBookings(@Param("empId") Long empId ,@Param("Role") String Role);
 }	

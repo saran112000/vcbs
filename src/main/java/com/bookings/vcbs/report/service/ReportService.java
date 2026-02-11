@@ -8,9 +8,9 @@ import com.bookings.vcbs.report.projection.BookingDetailProjection;
 
 public interface ReportService {
 
-	List<BookingDetailProjection> getRoomBookedList(String status, LocalDate fromDate, LocalDate toDate);
+	List<BookingDetailProjection> getRoomBookedList(String status,int isActive, LocalDate fromDate, LocalDate toDate);
 
-	byte[] generatePdf(String string, List<BookingDetailProjection> bookingReport, String fromDate, String toDate) throws Exception;
+	byte[] generatePdf(String string, List<BookingDetailProjection> bookingReport, String fromDate, String toDate, String filePrefix,String nameby ) throws Exception;
 
 	byte[] generateExcel(List<BookingDetailProjection> bookingReport) throws Exception;
 

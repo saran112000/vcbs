@@ -294,11 +294,11 @@ function filterRoomsByType() {
             });
 
             // Automatically select the first room if available
-            if (roomNoSelect.options.length > 1) {
-                roomNoSelect.selectedIndex = 1;
+           // if (roomNoSelect.options.length > 1) {
+              //  roomNoSelect.selectedIndex = 1;
                 // Now load the slots for this auto-selected room
-                loadBookedSlots();
-            }
+               // loadBookedSlots();
+           // }
         })
         .catch(err => {
             console.error("Error loading rooms:", err);
@@ -431,12 +431,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
 
             
-                if (roomNoSelect.options.length > 1) {
+         /*        if (roomNoSelect.options.length > 1) {
                     roomNoSelect.selectedIndex = 1;
                     
                     loadBookedSlots(); 
-                }
-            })
+                } */
+            })	
             .catch(err => console.error("Error loading default rooms:", err));
     }
 });

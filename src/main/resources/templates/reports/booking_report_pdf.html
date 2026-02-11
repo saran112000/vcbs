@@ -32,7 +32,7 @@
 </head>
 <body>
     <div class="header">
-        <h2>Rooms Booked Report</h2>
+        <h2>Rooms Booking </h2>
         <p>Report Period: <span th:text="${fromDate}">-</span> to <span th:text="${toDate}">-</span></p>
     </div>
 
@@ -43,7 +43,7 @@
                 <th style="width: 10%;">Booked Date</th>
                 <th style="width: 15%;">Room Info</th>
                 <th style="width: 25%;">Guest &amp; Subject</th>
-                <th style="width: 25%;">Booked By</th>
+                <th style="width: 25%;"><span th:text="${nameby}">-</span></th>
                 <th style="width: 20%;">Time Slots</th>
             </tr>
         </thead>

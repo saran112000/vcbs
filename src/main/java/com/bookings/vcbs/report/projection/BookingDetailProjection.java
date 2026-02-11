@@ -21,6 +21,8 @@ public interface BookingDetailProjection {
 
     // ed.designation AS slotBookedByDesignation
     String getSlotBookedByDesignation();
+    
+    String getCancelledByDesignation();
 
     // b.room_id
     Long getRoomId();
@@ -45,4 +47,12 @@ public interface BookingDetailProjection {
 
     // s.bookedSlots (result of GROUP_CONCAT)
     String getBookedSlots();
+    
+  
+    
+    String getRemarks();
+    
+   String getCancelledBy();
+   
+   int isActive();
 }
