@@ -117,6 +117,13 @@
 					            th:onclick="editLogin([[${user}]])">
 					        <i class="fas fa-edit"></i>
 					    </button>
+					    
+					    <button class="btn btn-outline-warning btn-sm" 
+					            title="Reset Password to 123"
+					            th:onclick="'confirmPasswordReset(' + ${user.loginId} + ')'">
+					        <i class="fas fa-key"></i>
+					    </button>
+    
 					    <button class="btn btn-outline-danger btn-sm" 
 					            th:onclick="'confirmDeleteLogin(' + ${user.loginId} + ')'">
 					        <i class="fas fa-trash"></i>
@@ -179,6 +186,36 @@
 <script th:inline="javascript">
     /* Initializing context path safely */
     const contextPath = /*[[@{/}]]*/ '';
+    
+    
+    function confirmPasswordReset(id) {
+        Swal.fire({
+            title: "Reset Password?",
+            text: "The password for this user will be reset to '123'.",
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: '#f0ad4e',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: "Yes, reset it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = contextPath + "login/reset-password/" + id;
+
+                // Add CSRF Token (Crucial for Spring Security)
+                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_csrf';
+                csrfInput.value = csrfToken;
+                
+                form.appendChild(csrfInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
 
     function editLogin(data) {
         if(!data) return;

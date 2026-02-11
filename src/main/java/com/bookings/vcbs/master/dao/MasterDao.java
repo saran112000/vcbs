@@ -70,5 +70,8 @@ public interface MasterDao {
 
 	public Long saveRoomTypes(RoleSecurityAccess entity);
 	
+	public String getPasswordByLoginId(Long loginId);
+	
+    public int updatePassword(Long loginId, String newPassword);
 	
 }

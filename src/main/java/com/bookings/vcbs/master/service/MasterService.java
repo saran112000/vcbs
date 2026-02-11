@@ -8,6 +8,7 @@ import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.LoginDetails;
 import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.PasswordChangeDTO;
 import com.bookings.vcbs.master.dto.RoleAccessDTO;
 import com.bookings.vcbs.master.dto.RoleSecurityDTO;
 import com.bookings.vcbs.master.dto.SubModuleDTO;
@@ -61,5 +62,9 @@ public interface MasterService {
 	void updateRoleAccess(Long roleId, Long moduleDetailsId, int isActive, String userName);
 
 	Long saveRoomTypes(RoleAccessDTO dto, String username);
+	
+	boolean resetPassword(Long loginId, String modifiedBy);
+
+	boolean changeUserPassword(Long loginId, PasswordChangeDTO passwordDTO);
 
 }

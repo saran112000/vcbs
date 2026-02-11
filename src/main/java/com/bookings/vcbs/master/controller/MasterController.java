@@ -23,6 +23,7 @@ import com.bookings.vcbs.master.dto.EmployeeDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.PasswordChangeDTO;
 import com.bookings.vcbs.master.dto.RoleAccessDTO;
 import com.bookings.vcbs.master.dto.RoleSecurityDTO;
 import com.bookings.vcbs.master.dto.SubModuleDTO;
@@ -319,4 +320,53 @@ public class MasterController {
             return "ERROR";
         }
     }
+    
+    @PostMapping("/login/reset-password/{id}")
+    public String resetPassword(@PathVariable("id") Long loginId, RedirectAttributes redirect, HttpSession ses) {
+        String userName = (String) ses.getAttribute("userName");
+        
+        boolean success = masterService.resetPassword(loginId, userName);
+        
+        if (success) {
+            redirect.addFlashAttribute("successMessage", "Password reset to '123' successfully!");
+        } else {
+            redirect.addFlashAttribute("errorMessage", "Failed to reset password.");
+        }
+        
+        return "redirect:/login/list";
+    }
+    
+    @PostMapping("/password/change")
+    public String changePassword(@ModelAttribute PasswordChangeDTO passwordDTO, 
+                                 HttpSession session, 
+                                 RedirectAttributes redirect) {
+        
+        Long loginId = (Long) session.getAttribute("loginId");
+        
+        if (loginId == null) {
+            return "redirect:/login"; // Session expired
+        }
+
+        if (!passwordDTO.getNewPassword().equals(passwordDTO.getConfirmPassword())) {
+            redirect.addFlashAttribute("errorMessage", "New Password and Confirm Password do not match!");
+            return "redirect:/dashboard-page";
+        }
+
+        try {
+            boolean isChanged = masterService.changeUserPassword(loginId, passwordDTO);
+            
+            if (isChanged) {
+                redirect.addFlashAttribute("successMessage", "Password changed successfully!");
+            } else {
+                redirect.addFlashAttribute("errorMessage", "Incorrect Old Password!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirect.addFlashAttribute("errorMessage", "Error occurred while changing password.");
+        }
+
+        return "redirect:/dashboard-page";
+    }
+    
+    
 }

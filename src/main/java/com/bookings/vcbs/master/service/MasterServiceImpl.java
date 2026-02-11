@@ -7,6 +7,7 @@ import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.LoginDetails;
 import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.PasswordChangeDTO;
 import com.bookings.vcbs.master.dto.RoleAccessDTO;
 import com.bookings.vcbs.master.dto.RoleSecurityDTO;
 import com.bookings.vcbs.master.dto.SubModuleDTO;
@@ -294,5 +295,38 @@ public class MasterServiceImpl  implements MasterService{
         Long status = masterDao.saveRoomTypes(entity);
         return status;
     }
-    
+	
+	@Override
+	@Transactional
+	public boolean resetPassword(Long loginId, String modifiedBy) {
+	    Login loginEntity = masterDao.findLoginById(loginId);
+	    if (loginEntity != null) {
+	        // Use your passwordEncoder or default to 123
+	        String encodedPassword = (passwordEncoder != null) ? passwordEncoder.encode("123") : "123";
+	        
+	        loginEntity.setPassword(encodedPassword);
+	        loginEntity.setModifiedBy(modifiedBy);
+	        loginEntity.setModifiedDate(LocalDateTime.now());
+	        
+	        masterDao.saveLogin(loginEntity);
+	        return true;
+	    }
+	    return false;
+	}
+	
+	@Override
+    @Transactional
+    public boolean changeUserPassword(Long loginId, PasswordChangeDTO dto) {
+        
+        String currentDbPasswordHash = masterDao.getPasswordByLoginId(loginId);
+        
+        if (!passwordEncoder.matches(dto.getOldPassword(), currentDbPasswordHash)) {
+            return false;
+        }
+
+        String newPasswordHash = passwordEncoder.encode(dto.getNewPassword());
+
+        return masterDao.updatePassword(loginId, newPasswordHash) > 0;
+    }
+
 }

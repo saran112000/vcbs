@@ -395,4 +395,26 @@ public class MasterDaoImpl implements MasterDao {
 	    return 1L; // Return success
 	}
 	
+	@Override
+    public String getPasswordByLoginId(Long loginId) {
+        String hql = "SELECT l.password FROM Login l WHERE l.loginId = :id";
+        try {
+            return (String) entityManager.createQuery(hql)
+                    .setParameter("id", loginId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public int updatePassword(Long loginId, String newPassword) {
+        String hql = "UPDATE Login l SET l.password = :pass, l.modifiedDate = :date WHERE l.loginId = :id";
+        return entityManager.createQuery(hql)
+                .setParameter("pass", newPassword)
+                .setParameter("date", LocalDateTime.now())
+                .setParameter("id", loginId)
+                .executeUpdate();
+    }
+	
 }

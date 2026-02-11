@@ -710,3 +710,15 @@ select {
     overflow: visible !important;
 }
 
+ .dropdown-item {
+            cursor: pointer;
+        }
+        .user-dropdown-toggle {
+            background: none;
+            border: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+

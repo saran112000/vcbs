@@ -1,94 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
-    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
     <link rel="stylesheet" th:href="@{/css/sidebar.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
-    <script th:src="@{/js/script.js}"></script>
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/fontfamily/css/google_font_family.css}">
     
-    
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+    <script th:src="@{/commonactivity/js/commonscript.js}" defer></script>
+    <script th:src="@{/bootstrap/js/jquery-3.7.1.js}"></script>
+    <script th:src="@{/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/sweetalert/js/sweetalert2.all.min.js}"></script>
 
 </head>
 <body>
 
+<div id="dashboardPage" class="page">
 
-
- <div id="dashboardPage" class="page" th:fragment="header_nav">
-
-        <div class="dashboard-header">
-            <div class="header-left">
-                <div class="logo-mini">
-                    <i class="fas fa-video"></i>
-                    <span>VC Booking</span>
-                </div>
-                <h1>Welcome to Booking Page</h1>
+    <div class="dashboard-header">
+        <div class="header-left">
+            <div class="logo-mini">
+                <i class="fas fa-video"></i>
+                <span>VC Booking</span>
             </div>
-            <div class="header-right">
-                <div class="user-info">
-                    <i class="fas fa-user-circle"></i>
-                    <span id="loggedInUser">User</span>
-                </div>
-					              <a th:href="@{/login}" style="text-decoration: none;">
-					    <button class="btn-logout" id="logoutBtn">
-					        <i class="fas fa-sign-out-alt"></i> Logout
-					    </button>
-					</a>
-            </div>
+            <h1>Welcome to Booking Page</h1>
         </div>
         
-        
-        
-	<div class="sidebar">
-			    <ol class="menu" style="list-style: none; padding: 0;">
-			        <li class="menu-item" th:each="main : ${mainModuleList}">
-			            <span class="menu-title">
-			                <i th:class="${main.moduleIcon}" style="margin-right: 10px;"></i>
-			                <span th:text="${main.moduleName}">Main Menu</span>
-			            </span>
-			            
-			            <ol class="submenu">
-			                <th:block th:each="sub : ${subModuleList}">
-			                    <li th:if="${sub.moduleId == main.moduleId}">
-			                        <a th:href="@{${sub.moduleDetailsUrl}}" th:text="${sub.moduleDetailsName}">
-			                            Sub Menu Item
-			                        </a>
-			                    </li>
-			                </th:block>
-			            </ol>
-			        </li>
-			    </ol>
-			</div>r̥
+        <div class="header-right">
+            <div class="user-info dropdown">
+                <button class="user-dropdown-toggle dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle" style="margin-right: 5px;"></i>
+                    <span th:text="${session.userName}">User</span>
+                </button>
+                
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li>
+                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                            <i class="fas fa-key me-2"></i> Change Password
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" th:href="@{/login}">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sidebar">
+        <ol class="menu" style="list-style: none; padding: 0;">
+            <li class="menu-item" th:each="main : ${mainModuleList}">
+                <span class="menu-title">
+                    <i th:class="${main.moduleIcon}" style="margin-right: 10px;"></i>
+                    <span th:text="${main.moduleName}">Main Menu</span>
+                </span>
+                
+                <ol class="submenu">
+                    <th:block th:each="sub : ${subModuleList}">
+                        <li th:if="${sub.moduleId == main.moduleId}">
+                            <a th:href="@{${sub.moduleDetailsUrl}}" th:text="${sub.moduleDetailsName}">
+                                Sub Menu Item
+                            </a>
+                        </li>
+                    </th:block>
+                </ol>
+            </li>
+        </ol>
+    </div>
+
+</div>
+
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="changePasswordLabel"><i class="fas fa-lock"></i> Change Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <form th:action="@{/password/change}" method="POST">
+          <div class="modal-body">
+            
+            <div class="mb-3">
+                <label for="oldPass" class="form-label">Old Password</label>
+                <input type="password" class="form-control" name="oldPassword" id="oldPass" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="newPass" class="form-label">New Password</label>
+                <input type="password" class="form-control" name="newPassword" id="newPass" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="confirmPass" class="form-label">Confirm New Password</label>
+                <input type="password" class="form-control" name="confirmPassword" id="confirmPass" required>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" onclick="return validatePasswordMatch()">Submit</button>
+          </div>
+      </form>
+      
+    </div>
+  </div>
+</div>
 
 
 
-    </div> 
 </body>
-<script>
-
-
-document.querySelectorAll('.menu-title').forEach(title => {
-    title.addEventListener('click', function() {
-        const parent = this.parentElement;
-        
-        // Toggle 'open' class on the clicked menu item
-        parent.classList.toggle('open')	;
-        
-        // Optional: Close other open menus
-        document.querySelectorAll('.menu-item').forEach(item => {
-            if (item !== parent) {
-                item.classList.remove('open');
-            }
-        });
-    });
-});
-</script>
-
-
 </html>
-
-
