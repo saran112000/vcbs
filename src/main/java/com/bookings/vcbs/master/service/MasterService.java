@@ -8,6 +8,7 @@ import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.LoginDetails;
 import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleAccessDTO;
 import com.bookings.vcbs.master.dto.RoleSecurityDTO;
 import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
@@ -51,8 +52,14 @@ public interface MasterService {
 	
 	boolean existsByEmpNo(String empNo);
 
-	List<MainModuleDTO> getMainModuleList();
+	List<MainModuleDTO> getMainModuleList(String roleName);
 
-	List<SubModuleDTO> getSubModuleList();
-	
+	List<SubModuleDTO> getSubModuleList(String roleName);
+
+	List<RoleAccessDTO> getRoleAccessList(Long roleId, Long moduleId);
+
+	void updateRoleAccess(Long roleId, Long moduleDetailsId, int isActive, String userName);
+
+	Long saveRoomTypes(RoleAccessDTO dto, String username);
+
 }

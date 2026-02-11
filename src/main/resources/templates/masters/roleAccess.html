@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Access Management</title>
+    
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+    
+    <script th:src="@{/bootstrap/js/jquery-3.7.1.js}"></script>
+    <script th:src="@{/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/sweetalert/js/sweetalert2.all.min.js}"></script>
+    
+    <script th:inline="javascript">
+        const contextPath = /*[[@{/}]]*/ '';
+    </script>
+
+    <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px; width: 14px;
+            left: 4px; bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #2196F3; }
+        input:checked + .slider:before { transform: translateX(22px); }
+        
+        .room-type-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+        
+        .swal2-container{
+        margin-top: 75px !important;
+        }
+    </style>
+</head>
+<body>
+
+ <div id="dashboardPage" class="page">
+    <div class="dashboard-header">
+        <div class="header-left">
+            <div class="logo-mini"><i class="fas fa-video"></i><span> VC Booking</span></div>
+            <h1>Role Access Management</h1>
+        </div>
+        <div class="header-right">
+            <div class="user-info"><i class="fas fa-user-circle"></i> <span id="loggedInUser">User</span></div>
+            <a th:href="@{/logout}" style="text-decoration: none;">
+                <button class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </a>
+        </div>
+    </div>
+        
+    <div class="sidebar">
+        <ol class="menu" style="list-style: none; padding: 0;">
+            <li class="menu-item" th:each="main : ${mainModuleList}">
+                <span class="menu-title">
+                    <i th:class="${main.moduleIcon}" style="margin-right: 10px;"></i>
+                    <span th:text="${main.moduleName}">Main Menu</span>
+                </span>
+                <ol class="submenu">
+                    <th:block th:each="sub : ${subModuleList}">
+                        <li th:if="${sub.moduleId == main.moduleId}">
+                            <a th:href="@{${sub.moduleDetailsUrl}}" th:text="${sub.moduleDetailsName}">Sub Menu Item</a>
+                        </li>
+                    </th:block>
+                </ol>
+            </li>
+        </ol>
+    </div>
+            
+    <div class="main-content">
+        <div class="page-header">
+            <h2><i class="fas fa-user-shield"></i> Role Access</h2>
+            <p>Manage permissions and specific room access levels</p>
+        </div>
+
+        <div class="glass-effect p-4">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label for="roleSelect" class="form-label fw-bold">Select Role</label>
+                    <select id="roleSelect" class="form-select" onchange="loadSubModules()">
+					    <option th:each="role, iterStat : ${roleSecurityList}" 
+					            th:value="${role.roleId}" 
+					            th:text="${role.roleName}"
+					            th:selected="${iterStat.index == 0}"></option>
+					</select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="mainModuleSelect" class="form-label fw-bold">Select Main Module</label>
+                    <select id="mainModuleSelect" class="form-select" onchange="loadSubModules()">
+					    <option th:each="main, iterStat : ${mainModuleList}" 
+					            th:value="${main.moduleId}" 
+					            th:text="${main.moduleName}"
+					            th:selected="${iterStat.index == 0}"></option>
+					</select>
+                </div>
+            </div>
+
+            <hr>
+
+            <div id="subModuleContainer" style="display:none;">
+                <h4>Manage Permissions</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 8%">Sl No</th>
+                                <th style="width: 40%">Sub Module Name</th>
+                                <th style="width: 32%">Special Access (Room Type)</th>
+                                <th style="width: 20%" class="text-center">Active Access</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subModuleTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="noDataMessage" class="alert alert-info text-center" style="display:none;">
+                Please select both a Role and a Main Module to view permissions.
+            </div>
+        </div>
+    </div> 
+</div>
+
+<script>
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const roleId = document.getElementById("roleSelect").value;
+        const moduleId = document.getElementById("mainModuleSelect").value;
+        if (roleId && moduleId) {
+            loadSubModules();
+        }
+    });
+
+    function loadSubModules() {
+        const roleId = document.getElementById("roleSelect").value;
+        const moduleId = document.getElementById("mainModuleSelect").value;
+        
+        const tableBody = document.getElementById("subModuleTableBody");
+        const container = document.getElementById("subModuleContainer");
+        const message = document.getElementById("noDataMessage");
+
+        if (roleId == "0" || moduleId == "0") {
+            container.style.display = "none";
+            message.style.display = "block";
+            return;
+        }
+
+        fetch(`${contextPath}role-access/fetch-submodules?roleId=${roleId}&moduleId=${moduleId}`)
+            .then(response => response.json())
+            .then(data => {
+                tableBody.innerHTML = "";
+                
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="text-center">No sub-modules found.</td></tr>';
+                } else {
+                    data.forEach((item, index) => {
+                        const isChecked = item.hasAccess ? 'checked' : '';
+                        
+                        // Check if THIS SPECIFIC SUB-MODULE is "Rooms Booking"
+                        let roomTypeHtml = '<td class="text-muted small">N/A</td>';
+                        
+                        if (item.moduleDetailsName && item.moduleDetailsName.trim() === "Rooms Booking") {
+                            const currentRT = item.roomType || "";
+                            const dronaChecked = currentRT.includes("Drona") ? "checked" : "";
+                            const internetChecked = currentRT.includes("Internet") ? "checked" : "";
+                            
+                            roomTypeHtml = `
+                                <td>
+                                    <div class="room-type-container">
+                                        <div class="form-check">
+                                            <input class="form-check-input rt-chk" type="checkbox" value="Drona" 
+                                                   id="d_${item.moduleDetailsId}" ${dronaChecked}
+                                                   onchange="updateRoomType(${roleId}, ${item.moduleDetailsId}, this)">
+                                            <label class="form-check-label" for="d_${item.moduleDetailsId}">Drona</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input rt-chk" type="checkbox" value="Internet" 
+                                                   id="i_${item.moduleDetailsId}" ${internetChecked}
+                                                   onchange="updateRoomType(${roleId}, ${item.moduleDetailsId}, this)">
+                                            <label class="form-check-label" for="i_${item.moduleDetailsId}">Internet</label>
+                                        </div>
+                                    </div>
+                                </td>`;
+                        }
+
+                        const row = `
+                            <tr>
+                                <td class="text-center">${index + 1}</td>
+                                <td><strong>${item.moduleDetailsName}</strong></td>
+                                ${roomTypeHtml}
+                                <td class="text-center">
+                                    <label class="switch">
+                                        <input type="checkbox" onchange="toggleAccess(${roleId}, ${item.moduleDetailsId}, this)" ${isChecked}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                }
+                container.style.display = "block";
+                message.style.display = "none";
+            })
+            .catch(err => Swal.fire("Error", "Could not fetch data", "error"));
+    }
+
+    function updateRoomType(roleId, moduleDetailsId, element) {
+        const row = element.closest('tr');
+        const checkboxes = row.querySelectorAll('.rt-chk');
+        // Join checked values with a comma (e.g. "Drona,Internet")
+        const combinedValue = Array.from(checkboxes)
+                                .filter(c => c.checked)
+                                .map(c => c.value)
+                                .join(',');
+
+        fetch(`${contextPath}role-access/update-room-type`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+            body: JSON.stringify({ roleId: roleId, moduleDetailsId: moduleDetailsId, roomType: combinedValue })
+        })
+        .then(res => res.text())
+        .then(status => {
+            if(status === "SUCCESS") showToast("Room types updated");
+            else Swal.fire("Error", "Update failed", "error");
+        });
+    }
+
+    function toggleAccess(roleId, moduleDetailsId, checkbox) {
+        const isActive = checkbox.checked ? 1 : 0;
+        fetch(`${contextPath}role-access/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+            body: JSON.stringify({ roleId: roleId, moduleDetailsId: moduleDetailsId, isActive: isActive })
+        })
+        .then(res => res.text())
+        .then(status => {
+            if(status === "SUCCESS") showToast(isActive ? "Access Granted" : "Access Revoked");
+            else checkbox.checked = !checkbox.checked;
+        });
+    }
+
+    function showToast(title) {
+        Swal.mixin({ toast: true, position: "top-end", showConfirmButton: false, timer: 1500 }).fire({ icon: "success", title });
+    }
+
+    document.querySelectorAll('.menu-title').forEach(t => t.addEventListener('click', () => t.parentElement.classList.toggle('open')));
+</script>
+</body>
+</html>

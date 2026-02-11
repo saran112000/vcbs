@@ -27,6 +27,7 @@
 	import com.bookings.vcbs.report.service.ReportService;
 	
 	import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 	
 	@Controller
 	public class ReportController {
@@ -50,7 +51,7 @@
 	    public String bookingReportList(
 	            @RequestParam(value = "fromDate", required = false) String fromDate, 
 	            @RequestParam(value = "toDate", required = false) String toDate, 
-	            Model model) {
+	            Model model , HttpSession ses) {
 	        
 	    	DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 	        if (fromDate == null || toDate == null) {
@@ -67,9 +68,10 @@
 	        model.addAttribute("fromDate", fromDate);
 	        model.addAttribute("toDate", toDate);
 	        
-	        model.addAttribute("mainModuleList", masterService.getMainModuleList());
-	        model.addAttribute("subModuleList", masterService.getSubModuleList());
-	        
+
+	        String roleName = (String)ses.getAttribute("roleName");
+	        model.addAttribute("mainModuleList", masterService.getMainModuleList(roleName));
+	        model.addAttribute("subModuleList", masterService.getSubModuleList(roleName));
 	        return "reports/bookingReportList";
 	    }
 	
@@ -113,7 +115,7 @@
 	    public String cancelbookingReportList(
 	            @RequestParam(value = "fromDate", required = false) String fromDate, 
 	            @RequestParam(value = "toDate", required = false) String toDate, 
-	            Model model) {
+	            Model model , HttpSession ses) {
 	        
 	        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 	        if (fromDate == null || toDate == null) {
@@ -130,8 +132,9 @@
 	        model.addAttribute("bookingReport", bookingReport != null ? bookingReport : new ArrayList<>());
 	        model.addAttribute("fromDate", fromDate);
 	        model.addAttribute("toDate", toDate);
-	        model.addAttribute("mainModuleList", masterService.getMainModuleList());
-	        model.addAttribute("subModuleList", masterService.getSubModuleList());
+	        String roleName = (String)ses.getAttribute("roleName");
+	        model.addAttribute("mainModuleList", masterService.getMainModuleList(roleName));
+	        model.addAttribute("subModuleList", masterService.getSubModuleList(roleName));
 	        
 	        return "reports/cancelledReportList"; 	
 	    }

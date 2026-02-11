@@ -8,11 +8,13 @@ import com.bookings.vcbs.master.dto.EmployeeDesignationDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleAccessDTO;
 import com.bookings.vcbs.master.dto.RoleSecurityDTO;
 import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.modal.Employee;
 import com.bookings.vcbs.master.modal.EmployeeDivision;
 import com.bookings.vcbs.master.modal.Login;
+import com.bookings.vcbs.master.modal.RoleSecurityAccess;
 
 public interface MasterDao {
 	
@@ -56,7 +58,17 @@ public interface MasterDao {
 
 	boolean existsByDivisionCode(String divisionCode);
 
-	public List<MainModuleDTO> getMainModuleList();
+	public List<MainModuleDTO> getMainModuleList(String roleName);
 
-	public List<SubModuleDTO> getSubModuleList();
+	public List<SubModuleDTO> getSubModuleList(String roleName);
+
+	public List<RoleAccessDTO> getRoleAccessList(Long roleId, Long moduleId);
+
+	public void updateRoleAccess(Long roleId, Long moduleDetailsId, int isActive, String userName);
+
+	public RoleSecurityAccess findByRoleIdAndModuleDetailsId(Long roleId, Long moduleDetailsId);
+
+	public Long saveRoomTypes(RoleSecurityAccess entity);
+	
+	
 }

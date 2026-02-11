@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -21,6 +23,7 @@ import com.bookings.vcbs.master.dto.EmployeeDTO;
 import com.bookings.vcbs.master.dto.EmployeeDivisionDTO;
 import com.bookings.vcbs.master.dto.LoginDTO;
 import com.bookings.vcbs.master.dto.MainModuleDTO;
+import com.bookings.vcbs.master.dto.RoleAccessDTO;
 import com.bookings.vcbs.master.dto.RoleSecurityDTO;
 import com.bookings.vcbs.master.dto.SubModuleDTO;
 import com.bookings.vcbs.master.service.MasterService;
@@ -40,7 +43,7 @@ public class MasterController {
 	/* ----------------------------------------- Division Details -------------------------------------- */
 	
 	@GetMapping("/division/list")
-    public String divisionList(Model model) {
+    public String divisionList(Model model, HttpSession ses) {
 		
 		List<EmployeeDivisionDTO> divisionList = masterService.getAllDivisions();
 		model.addAttribute("divisionList", divisionList != null ? divisionList : new ArrayList<>());
@@ -48,10 +51,12 @@ public class MasterController {
 		List<EmployeeDTO> employeeList = masterService.getEmployeeList();
 		model.addAttribute("employeeList", employeeList != null ? employeeList : new ArrayList<>());
 		
-		List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+		String roleName = (String)ses.getAttribute("roleName");
+		
+		List<MainModuleDTO> mainModuleList = masterService.getMainModuleList(roleName);
 		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
 		
-		List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+		List<SubModuleDTO> subModuleList = masterService.getSubModuleList(roleName);
 		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
 		
         model.addAttribute("division", new EmployeeDivisionDTO());
@@ -133,17 +138,19 @@ public class MasterController {
 	/* ----------------------------------------- Employee -------------------------------------- */
    
     @GetMapping("/employee/list")
-    public String employeeList(Model model) {
+    public String employeeList(Model model, HttpSession ses) {
         List<EmployeeDTO> officerList = masterService.getEmployeeList();
         model.addAttribute("officerList", officerList != null ? officerList : new ArrayList<>());
         
         model.addAttribute("designationList", masterService.getEmployeeDesignationList());
         model.addAttribute("divisionList", masterService.getAllDivisions());
         
-        List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+    	String roleName = (String)ses.getAttribute("roleName");
+		
+		List<MainModuleDTO> mainModuleList = masterService.getMainModuleList(roleName);
 		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
 		
-		List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+		List<SubModuleDTO> subModuleList = masterService.getSubModuleList(roleName);
 		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
         
         model.addAttribute("employee", new EmployeeDTO());
@@ -195,7 +202,7 @@ public class MasterController {
     /* ----------------------------------------- Login Details -------------------------------------- */
 
     @GetMapping("/login/list")
-    public String loginList(Model model) {
+    public String loginList(Model model, HttpSession ses) {
         List<LoginDTO> loginList = masterService.getAllLogins();
         model.addAttribute("loginList", loginList != null ? loginList : new ArrayList<>());
         
@@ -205,12 +212,14 @@ public class MasterController {
         List<RoleSecurityDTO> roleSecurityList = masterService.getRoleSecurityList();
         model.addAttribute("roleSecurityList", roleSecurityList != null ? roleSecurityList : new ArrayList<>());
         
-        List<MainModuleDTO> mainModuleList = masterService.getMainModuleList();
+        String roleName = (String)ses.getAttribute("roleName");
+		
+		List<MainModuleDTO> mainModuleList = masterService.getMainModuleList(roleName);
 		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
 		
-		List<SubModuleDTO> subModuleList = masterService.getSubModuleList();
+		List<SubModuleDTO> subModuleList = masterService.getSubModuleList(roleName);
 		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
-        
+		
         model.addAttribute("loginForm", new LoginDTO());
         return "masters/loginList";
     }
@@ -253,5 +262,61 @@ public class MasterController {
         return "redirect:/login/list";
     }
 	
+    @GetMapping("/role-access")
+    public String roleAccessList(Model model, HttpSession ses) {
+    	
+    	 String roleName = (String)ses.getAttribute("roleName");
+    	
+        List<RoleSecurityDTO> roleSecurityList = masterService.getRoleSecurityList();
+        model.addAttribute("roleSecurityList", roleSecurityList != null ? roleSecurityList : new ArrayList<>());
+        
+        List<MainModuleDTO> mainModuleList = masterService.getMainModuleList(roleName);
+		model.addAttribute("mainModuleList", mainModuleList != null ? mainModuleList : new ArrayList<>());
+		
+		List<SubModuleDTO> subModuleList = masterService.getSubModuleList(roleName);
+		model.addAttribute("subModuleList", subModuleList != null ? subModuleList : new ArrayList<>());
+        
+        model.addAttribute("loginForm", new LoginDTO());
+        return "masters/roleAccess";
+    }
 	
+    @GetMapping("/role-access/fetch-submodules")
+    @ResponseBody
+    public List<RoleAccessDTO> getSubModulesForRole(@RequestParam("roleId") Long roleId, 
+                                                    @RequestParam("moduleId") Long moduleId) {
+        return masterService.getRoleAccessList(roleId, moduleId);
+    }
+
+    @PostMapping("/role-access/update")
+    @ResponseBody
+    public String updateRoleAccess(@RequestBody Map<String, Object> payload, HttpSession ses) {
+        try {
+            Long roleId = Long.valueOf(payload.get("roleId").toString());
+            Long moduleDetailsId = Long.valueOf(payload.get("moduleDetailsId").toString());
+            int isActive = Integer.parseInt(payload.get("isActive").toString());
+            String userName = (String) ses.getAttribute("userName"); // For audit logs
+
+            masterService.updateRoleAccess(roleId, moduleDetailsId, isActive, userName);
+            return "SUCCESS";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "ERROR";
+        }
+    }
+    
+    @PostMapping("/role-access/update-room-type")
+    @ResponseBody // <--- This is the missing piece!
+    public String updateRoomType(@RequestBody RoleAccessDTO dto, HttpSession session) {
+        try {
+            // Get username from session since it's not a @RequestBody field
+            String username = (String) session.getAttribute("userName"); 
+            
+            masterService.saveRoomTypes(dto, username);
+            
+            return "SUCCESS"; // Return the string your JS is looking for
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "ERROR";
+        }
+    }
 }
